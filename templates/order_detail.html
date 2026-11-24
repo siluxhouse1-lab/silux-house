@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+{% block title %}Commande #{{ order.id }} | SILUX HOUSE{% endblock %}
+{% block content %}
+{# Badge selon le statut. Valeurs inconnues : badge neutre avec le texte d'origine. #}
+{% macro badge(value) -%}
+  {%- set v = (value or '')|string|trim|lower -%}
+  {%- set tones = {
+    'pending':'warn','en attente':'warn','processing':'warn','en cours':'warn','unpaid':'warn','non payé':'warn','non payée':'warn','refund_due':'warn',
+    'confirmed':'info','confirmée':'info','confirmé':'info','shipped':'info','expédiée':'info','expédié':'info','en livraison':'info','escrowed':'info',
+    'paid':'ok','payé':'ok','payée':'ok','delivered':'ok','livrée':'ok','livré':'ok','completed':'ok','terminée':'ok','terminé':'ok','released':'ok',
+    'cancelled':'bad','canceled':'bad','annulée':'bad','annulé':'bad','failed':'bad','échoué':'bad','échouée':'bad','refunded':'bad','remboursée':'bad'
+  } -%}
+  {%- set labels = {
+    'pending':'En attente','processing':'En préparation','unpaid':'Non payé','confirmed':'Confirmée','shipped':'Expédiée',
+    'paid':'Payée','delivered':'Livrée','completed':'Terminée','cancelled':'Annulée','canceled':'Annulée','failed':'Échoué','refunded':'Remboursée',
+    'escrowed':'Sous séquestre','released':'Fonds libérés','refund_due':'Remboursement en cours'
+  } -%}
+  <span class="od-badge {{ tones.get(v, 'neutral') }}">{{ labels.get(v, value) }}</span>
+{%- endmacro %}
+{% set sub = namespace(total=0, count=0, negotiated=0) %}
+{% for i in items %}{% set sub.total = sub.total + i.quantity * i.unit_price %}{% set sub.count = sub.count + i.quantity %}{% if i.quote_id %}{% set sub.negotiated = sub.negotiated + 1 %}{% endif %}{% endfor %}
+{% set fee = order.delivery_fee or 0 %}
+{% set is_online = order.payment_method == 'cinetpay' %}
+{% set ps = order.payment_status %}
+{% set st = order.status %}
+{% set funded = ps in ('escrowed', 'released', 'paid', 'refund_due') %}
+{% set support_wa = "22782791007" %}
+
+{# Étapes de suivi : (libellé, détail, terminée) #}
+{% if is_online %}
+  {% set steps = [
+    ('Paiement sécurisé', 'Fonds sous séquestre', funded),
+    ('Préparation', 'Le vendeur prépare', st in ('processing', 'shipped', 'delivered')),
+    ('Expédiée', (order.shipped_at|string)[:16] if order.shipped_at else 'En route vers vous', st in ('shipped', 'delivered')),
+    ('Réception confirmée', 'Par vous', st == 'delivered'),
+    ('Fonds libérés', (order.released_at|string)[:16] if order.released_at else 'Au vendeur', ps == 'released')
+  ] %}
+{% else %}
+  {% set steps = [
+    ('Commande enregistrée', 'Paiement à la livraison', st != 'cancelled'),
+    ('Préparation', 'Le vendeur prépare', st in ('processing', 'shipped', 'delivered')),
+    ('Expédiée', (order.shipped_at|string)[:16] if order.shipped_at else 'En route vers vous', st in ('shipped', 'delivered')),
+    ('Livrée et payée', 'Règlement au livreur', st == 'delivered')
+  ] %}
+{% endif %}
+{% set cur = namespace(idx=-1) %}
+{% for s in steps %}{% if cur.idx == -1 and not s[2] %}{% set cur.idx = loop.index0 %}{% endif %}{% endfor %}
+
+<style>
+{% raw %}
+.od-back{display:inline-block;margin-bottom:18px;color:var(--muted);text-decoration:none;font-size:.93rem}
+.od-back:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.od-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin:0 0 28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.od-head h1{font-size:clamp(2rem,4vw,2.8rem);margin:0 0 6px}
+.od-date{margin:0;color:var(--muted)}
+.od-badges{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px}
+.od-badges div{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted)}
+.od-print{padding:10px 20px;font-size:.92rem}
+
+/* Badges de statut */
+.od-badge{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 10px;border-radius:999px;font-size:.84rem;font-weight:500;white-space:nowrap;background:#F1ECEA;color:#4B4244}
+.od-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#A99F9B}
+.od-badge.ok{background:#EAF5EF;color:#1C5A41}.od-badge.ok::before{background:var(--green)}
+.od-badge.warn{background:var(--rose);color:#5B3A34}.od-badge.warn::before{background:var(--gold)}
+.od-badge.info{background:#151314;color:var(--gold-l)}.od-badge.info::before{background:var(--gold)}
+.od-badge.bad{background:#FBECEA;color:#9B1C12}.od-badge.bad::before{background:#C9372C}
+
+/* Suivi */
+.od-track{margin:0 0 28px;border:1px solid var(--line);background:#fff}
+.od-steps{list-style:none;margin:0;padding:22px 22px 20px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0}
+.od-step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:0 6px}
+.od-step::before{content:"";position:absolute;top:17px;left:calc(-50% + 20px);right:calc(50% + 20px);height:2px;background:var(--line)}
+.od-step:first-child::before{display:none}
+.od-step.done::before,.od-step.now::before{background:var(--gold)}
+.od-dot{position:relative;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:#fff;color:var(--muted);font-weight:600;font-size:.85rem}
+.od-step.done .od-dot{background:var(--gold-grad);border-color:var(--gold);color:#151314}
+.od-step.now .od-dot{border-color:var(--ink);color:var(--ink);HOUSE-shadow:0 0 0 4px var(--gold-l)}
+.od-dot svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4}
+.od-step b{font-weight:600;font-size:.9rem;line-height:1.25}
+.od-step span{font-size:.78rem;color:var(--muted);line-height:1.3}
+.od-step:not(.done):not(.now) b{color:var(--muted);font-weight:500}
+
+/* Silux Protection */
+.od-ta{margin:0 0 28px;border:1px solid var(--ink);background:#fff}
+.od-ta::before{content:"";display:block;height:4px;background:var(--gold-grad)}
+.od-ta-in{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:20px;align-items:center;padding:22px 26px}
+.od-ta-ico{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--rose);border:1px solid var(--rose-2)}
+.od-ta-ico svg{width:30px;height:30px;stroke:var(--ink);fill:none;stroke-width:1.5}
+.od-ta h2{margin:0 0 4px;font-size:1.45rem}
+.od-ta p{margin:0;color:#3A3234;max-width:62ch}
+.od-ta p+p{margin-top:6px;color:var(--muted);font-size:.9rem}
+.od-ta-eyebrow{display:block;margin-bottom:4px;font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
+.od-actions{display:flex;flex-direction:column;gap:10px;min-width:240px}
+.od-actions form{margin:0}
+.od-actions .btn{width:100%;padding:14px 22px}
+.btn.gold{background:var(--gold-grad);border-color:var(--gold);color:#151314;font-weight:600}
+.btn.gold:hover{filter:brightness(1.07);background:var(--gold-grad);border-color:var(--gold);color:#151314}
+.od-actions a.sec{text-align:center;font-size:.86rem;color:var(--muted);text-underline-offset:3px}
+.od-actions a.sec:hover{color:var(--ink)}
+.od-ta.ready{border-width:2px;HOUSE-shadow:0 14px 34px rgba(143,106,40,.18)}
+.od-ta.ready .od-ta-ico{background:var(--gold-grad);border-color:var(--gold)}
+.od-ta.ok{border-color:#BFE0CF}
+.od-ta.ok::before{background:var(--green)}
+.od-ta.ok .od-ta-ico{background:#EAF5EF;border-color:#BFE0CF}
+.od-ta.bad{border-color:#F0C4BF}
+.od-ta.bad::before{background:#C9372C}
+.od-ta.bad .od-ta-ico{background:#FBECEA;border-color:#F0C4BF}
+.od-ta.plain{border-color:var(--line)}
+.od-ta.plain::before{background:var(--line)}
+.od-ta-foot{display:flex;gap:10px 22px;flex-wrap:wrap;padding:12px 26px;border-top:1px solid var(--line);background:var(--ivory);font-size:.84rem;color:var(--muted)}
+.od-ta-foot span{display:inline-flex;align-items:center;gap:7px}
+.od-ta-foot svg{width:15px;height:15px;stroke:var(--orange);fill:none;stroke-width:2}
+
+.od-layout{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
+.od-card{border:1px solid var(--line);background:#fff}
+.od-card h2{font-size:1.4rem;margin:0}
+.od-card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:20px 22px;border-bottom:1px solid var(--ink);background:var(--ivory)}
+.od-card-head span{color:var(--muted);font-size:.9rem}
+
+/* Articles */
+.od-table{width:100%;border-collapse:collapse;margin:0}
+.od-table th{text-align:left;font-weight:500;font-size:.85rem;color:var(--muted);padding:14px 22px;white-space:nowrap;border:0;border-bottom:1px solid var(--line)}
+.od-table th.r,.od-table td.r{text-align:right}
+.od-table td{padding:18px 22px;border:0;border-bottom:1px solid var(--line);vertical-align:middle}
+.od-table tbody tr:last-child td{border-bottom:0}
+.od-name{font-family:var(--serif);font-weight:500;font-size:1.15rem;line-height:1.25}
+.od-nego{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--ink);color:var(--gold-l);font-family:var(--sans);font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
+.od-qty{font-weight:500}
+.od-unit{color:var(--muted);white-space:nowrap}
+.od-line{font-weight:600;white-space:nowrap}
+.od-line small,.od-unit small{font-size:.78rem;font-weight:500;color:var(--muted);margin-left:3px}
+
+/* Colonne latérale */
+.od-side{display:grid;gap:20px;position:sticky;top:150px}
+.od-HOUSE{padding:22px 24px}
+.od-HOUSE h2{margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.od-dl{margin:0;display:grid;gap:14px}
+.od-dl dt{font-size:.82rem;color:var(--muted);margin-bottom:2px}
+.od-dl dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.od-ref{font-family:var(--sans);font-size:.88rem;letter-spacing:.02em}
+
+.od-sum{padding:22px 24px;color:#fff}
+.od-sum h2{color:#fff;margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid rgba(235,212,156,.35)}
+.od-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:6px 0;color:#D8CFCB}
+.od-row b{font-weight:500;color:#fff;white-space:nowrap}
+.od-free{color:var(--gold-l)!important}
+.od-grand{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:10px;padding-top:14px;border-top:1px solid rgba(235,212,156,.35)}
+.od-grand span{font-weight:500}
+.od-grand b{font-size:1.9rem;font-weight:600;white-space:nowrap;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.od-grand b small{font-size:.8rem;font-weight:500;margin-left:4px;-webkit-text-fill-color:#D8CFCB}
+
+@media (max-width:960px){
+ .od-layout{grid-template-columns:1fr;gap:24px}
+ .od-side{position:static}
+ .od-ta-in{grid-template-columns:auto minmax(0,1fr)}
+ .od-actions{grid-column:1/-1}
+}
+@media (max-width:700px){
+ .od-steps{grid-auto-flow:row;grid-auto-columns:auto;gap:0;padding:18px 18px 12px}
+ .od-step{flex-direction:row;align-items:flex-start;text-align:left;gap:14px;padding:0 0 18px}
+ .od-step>div{display:flex;flex-direction:column;gap:2px;padding-top:2px}
+ .od-step::before{top:auto;bottom:calc(100% - 36px);left:17px;right:auto;width:2px;height:calc(100% - 18px);transform:translateY(-18px)}
+ .od-step:first-child::before{display:none}
+}
+@media (max-width:640px){
+ .od-ta-in{grid-template-columns:1fr;padding:18px}
+ .od-ta-ico{width:48px;height:48px}
+ .od-ta-foot{padding:12px 18px}
+ .od-table,.od-table tbody,.od-table tr,.od-table td{display:block;width:100%}
+ .od-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .od-table tr{padding:16px 18px;border-bottom:1px solid var(--line)}
+ .od-table tbody tr:last-child{border-bottom:0}
+ .od-table td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:5px 0;border:0;text-align:right!important}
+ .od-table td::before{content:attr(data-label);font-size:.85rem;color:var(--muted);text-align:left}
+ .od-table td.od-name{display:block;text-align:left!important;padding-bottom:8px}
+ .od-table td.od-name::before{content:none}
+ .od-print{width:100%}
+}
+@media print{
+ .topbar,.site-header,.site-footer,.od-back,.od-print,.flash,.od-actions,.ta-strip,.wa-float{display:none!important}
+ .od-layout{grid-template-columns:1fr 320px}
+ .od-side{position:static}
+ .od-sum{background:#fff!important;color:#000;border:1px solid #000}
+ .od-sum h2,.od-row,.od-row b{color:#000}
+ .od-grand b{background:none;-webkit-text-fill-color:#000;color:#000}
+}
+{% endraw %}
+</style>
+
+<a class="od-back" href="{{ url_for('my_orders') }}">Retour à mes commandes</a>
+
+<div class="od-head">
+  <div>
+    <h1>Commande #{{ order.id }}</h1>
+    {% if order.created_at %}<p class="od-date">Passée le {{ (order.created_at|string)[:16] }}</p>{% endif %}
+    <div class="od-badges">
+      <div>Commande {{ badge(order.status) }}</div>
+      <div>Paiement {{ badge(order.payment_status) }}</div>
+    </div>
+  </div>
+  <button class="btn secondary od-print" type="button" onclick="window.print()">Imprimer le reçu</button>
+</div>
+
+{# ---------- Suivi de commande ---------- #}
+{% if st != 'cancelled' %}
+<section class="od-track" aria-label="Suivi de la commande">
+  <ol class="od-steps">
+    {% for s in steps %}
+    <li class="od-step {{ 'done' if s[2] else ('now' if loop.index0 == cur.idx else '') }}" {{ 'aria-current=step' if loop.index0 == cur.idx }}>
+      <span class="od-dot" aria-hidden="true">{% if s[2] %}<svg viewHOUSE="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>{% else %}{{ loop.index }}{% endif %}</span>
+      <div><b>{{ s[0] }}</b><span>{{ s[1] }}</span></div>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+
+{# ---------- Silux Protection : séquestre ---------- #}
+{% if can_confirm_receipt %}
+<section class="od-ta ready" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
+    <div>
+      <span class="od-ta-eyebrow">Silux Protection</span>
+      <h2 id="ta-title">Avez-vous bien reçu votre commande ?</h2>
+      <p>Vos {{ "{:,.0f}".format(order.total).replace(",", " ") }} FCFA sont bloqués sous séquestre. En confirmant la réception conforme, vous les libérez au vendeur.</p>
+      <p>Vérifiez vos articles avant de confirmer : cette action est définitive.</p>
+    </div>
+    <div class="od-actions">
+      <form method="post" action="{{ url_for('confirm_receipt', order_id=order.id) }}" id="release-form">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="btn gold" type="submit" id="release-btn">Confirmer la réception et libérer les fonds</button>
+      </form>
+      <a class="sec" href="https://wa.me/{{ support_wa }}?text=Bonjour%20SILUX%20HOUSE%2C%20j%27ai%20un%20probl%C3%A8me%20avec%20la%20commande%20%23{{ order.id }}." target="_blank" rel="noopener noreferrer">Un problème avec cette commande ? Contacter le support</a>
+    </div>
+  </div>
+  <div class="od-ta-foot">
+    <span><svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Paiement sécurisé</span>
+    <span><svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Livraison garantie</span>
+    <span><svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Protection de remboursement</span>
+  </div>
+</section>
+
+{% elif ps == 'escrowed' and st != 'cancelled' %}
+<section class="od-ta" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+    <div>
+      <span class="od-ta-eyebrow">Silux Protection</span>
+      <h2 id="ta-title">Paiement reçu : vos fonds sont sous séquestre</h2>
+      <p>Le vendeur prépare votre commande. Les fonds ne lui seront versés qu'après votre confirmation de réception.</p>
+      <p>Dès l'expédition, un bouton de confirmation apparaîtra ici.</p>
+    </div>
+    <span></span>
+  </div>
+</section>
+
+{% elif ps == 'released' %}
+<section class="od-ta ok" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span>
+    <div>
+      <span class="od-ta-eyebrow">Silux Protection</span>
+      <h2 id="ta-title">Réception confirmée, fonds libérés</h2>
+      <p>Vous avez confirmé la réception{% if order.released_at %} le {{ (order.released_at|string)[:16] }}{% endif %}. Les fonds ont été versés au vendeur. Merci pour votre confiance.</p>
+    </div>
+    <span></span>
+  </div>
+</section>
+
+{% elif ps == 'refund_due' %}
+<section class="od-ta bad" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
+    <div>
+      <span class="od-ta-eyebrow">Protection de remboursement</span>
+      <h2 id="ta-title">Remboursement en cours de traitement</h2>
+      <p>Cette commande a été annulée. Votre paiement de {{ "{:,.0f}".format(order.total).replace(",", " ") }} FCFA vous sera remboursé par SILUX HOUSE.</p>
+    </div>
+    <div class="od-actions">
+      <a class="btn secondary" href="https://wa.me/{{ support_wa }}?text=Bonjour%20SILUX%20HOUSE%2C%20suivi%20du%20remboursement%20de%20la%20commande%20%23{{ order.id }}." target="_blank" rel="noopener noreferrer">Suivre mon remboursement</a>
+    </div>
+  </div>
+</section>
+
+{% elif can_pay %}
+<section class="od-ta ready" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
+    <div>
+      <span class="od-ta-eyebrow">Silux Protection</span>
+      <h2 id="ta-title">Finalisez votre paiement sécurisé</h2>
+      <p>Payez en ligne par carte VISA, Mastercard, Moov ou Airtel : vos fonds restent sous séquestre jusqu'à la réception de votre commande.</p>
+    </div>
+    <div class="od-actions">
+      <a class="btn gold" href="{{ url_for('payment_initiate', order_id=order.id) }}">Payer {{ "{:,.0f}".format(order.total).replace(",", " ") }} FCFA</a>
+      {% if can_cancel %}
+      <form method="post" action="{{ url_for('order_cancel', order_id=order.id) }}" data-confirm="Annuler cette commande ?">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="btn secondary" type="submit">Annuler la commande</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% elif st == 'cancelled' %}
+<section class="od-ta plain" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg></span>
+    <div>
+      <h2 id="ta-title">Commande annulée</h2>
+      <p>Les articles ont été remis en stock. Aucun montant ne sera prélevé pour cette commande.</p>
+    </div>
+    <div class="od-actions"><a class="btn secondary" href="{{ url_for('home') }}">Continuer mes achats</a></div>
+  </div>
+</section>
+
+{% elif can_cancel %}
+<section class="od-ta plain" aria-labelledby="ta-title">
+  <div class="od-ta-in">
+    <span class="od-ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg></span>
+    <div>
+      <h2 id="ta-title">Paiement à la livraison</h2>
+      <p>Vous réglerez le livreur à la réception de votre commande. Vous pouvez l'annuler tant qu'elle n'est pas en préparation.</p>
+    </div>
+    <div class="od-actions">
+      <form method="post" action="{{ url_for('order_cancel', order_id=order.id) }}" data-confirm="Annuler cette commande ?">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="btn secondary" type="submit">Annuler la commande</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<div class="od-layout">
+  <section class="od-card" aria-label="Articles commandés">
+    <div class="od-card-head"><h2>Articles</h2><span>{{ sub.count }} article{{ 's' if sub.count > 1 }}</span></div>
+    <table class="od-table">
+      <thead>
+        <tr><th scope="col">Produit</th><th scope="col" class="r">Qté</th><th scope="col" class="r">Prix unitaire</th><th scope="col" class="r">Total</th></tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <td class="od-name">{{ i.name }}{% if i.quote_id %}<span class="od-nego">Prix négocié</span>{% endif %}</td>
+          <td data-label="Quantité" class="r od-qty">{{ i.quantity }}</td>
+          <td data-label="Prix unitaire" class="r od-unit">{{ "{:,.0f}".format(i.unit_price).replace(",", " ") }}<small>FCFA</small></td>
+          <td data-label="Total" class="r od-line">{{ "{:,.0f}".format(i.quantity * i.unit_price).replace(",", " ") }}<small>FCFA</small></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <aside class="od-side">
+    <section class="od-card od-HOUSE">
+      <h2>Livraison</h2>
+      <dl class="od-dl">
+        <div><dt>Adresse</dt><dd>{{ order.delivery_address }}</dd></div>
+        <div><dt>Ville</dt><dd>{{ order.delivery_city }}</dd></div>
+        <div><dt>Téléphone</dt><dd>{{ order.customer_phone }}</dd></div>
+        {% if order.shipped_at %}<div><dt>Expédiée le</dt><dd>{{ (order.shipped_at|string)[:16] }}</dd></div>{% endif %}
+      </dl>
+    </section>
+
+    <section class="od-card od-HOUSE">
+      <h2>Paiement</h2>
+      <dl class="od-dl">
+        <div><dt>Mode de paiement</dt><dd>{{ 'Paiement à la livraison' if order.payment_method == 'cash' else 'Paiement en ligne (CinetPay)' }}</dd></div>
+        <div><dt>Statut</dt><dd>{{ badge(order.payment_status) }}</dd></div>
+        {% if is_online and ps in ('escrowed', 'released') %}<div><dt>Protection</dt><dd>Silux Protection (séquestre)</dd></div>{% endif %}
+        {% if order.transaction_id %}<div><dt>Référence</dt><dd class="od-ref">{{ order.transaction_id }}</dd></div>{% endif %}
+      </dl>
+    </section>
+
+    <section class="od-card od-sum noir" aria-label="Récapitulatif">
+      <h2>Récapitulatif</h2>
+      <div class="od-row"><span>Sous-total</span><b>{{ "{:,.0f}".format(sub.total).replace(",", " ") }} FCFA</b></div>
+      <div class="od-row"><span>Livraison</span>
+        {% if fee == 0 %}<b class="od-free">Gratuite</b>{% else %}<b>{{ "{:,.0f}".format(fee).replace(",", " ") }} FCFA</b>{% endif %}
+      </div>
+      <div class="od-grand"><span>Total</span><b>{{ "{:,.0f}".format(order.total).replace(",", " ") }}<small>FCFA</small></b></div>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  document.querySelectorAll('form[data-confirm]').forEach(function(f){
+    f.addEventListener('submit',function(e){ if(!window.confirm(f.getAttribute('data-confirm'))){ e.preventDefault(); } });
+  });
+  var rf=document.getElementById('release-form'), rb=document.getElementById('release-btn');
+  if(rf && rb){
+    rf.addEventListener('submit',function(e){
+      if(!window.confirm("Confirmez-vous avoir reçu votre commande en bon état ? Les fonds seront définitivement libérés au vendeur.")){ e.preventDefault(); return; }
+      rb.disabled=true; rb.textContent='Libération en cours…';
+    });
+  }
+})();
+</script>
+{% endblock %}

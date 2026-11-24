@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Connexion · SILUX HOUSE{% endblock %}
+{% block head_extra %}
+<style>
+.login-page{max-width:1040px;margin:34px auto 56px;padding:0 20px;width:100%;HOUSE-sizing:border-HOUSE}
+.login-shell{display:grid;grid-template-columns: .92fr 1.08fr;overflow:hidden;border:1px solid #E7D8D5;border-radius:18px;background:#fff;HOUSE-shadow:0 18px 48px rgba(48,39,43,.07)}
+.login-story{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;min-height:490px;padding:clamp(28px,5vw,54px);background:#30272B;color:#F5F0E8;overflow:hidden}
+.login-story:before{content:"";position:absolute;z-index:-1;width:360px;height:360px;right:-135px;bottom:-120px;border:1px solid rgba(216,167,184,.65);border-radius:50%;HOUSE-shadow:0 0 0 24px rgba(216,167,184,.06),0 0 0 52px rgba(216,167,184,.04)}
+.login-story:after{content:"";position:absolute;z-index:-1;width:190px;height:190px;right:5px;bottom:-78px;border:1px solid rgba(216,167,184,.55);border-radius:50%}
+.login-mark{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:#D8A7B8;color:#30272B;font-size:1.45rem;font-weight:800;letter-spacing:-.08em}
+.login-eyebrow{margin:28px 0 12px;color:#D8A7B8;font-size:.76rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
+.login-story h1{max-width:12ch;margin:0;font-size:clamp(2.1rem,4.2vw,3.55rem);line-height:1.04;letter-spacing:-.045em}
+.login-story p{max-width:34ch;margin:18px 0 0;color:#E7D8D5;line-height:1.75}
+.login-foot{margin-top:45px;color:#E7D8D5;font-size:.85rem}
+.login-form-wrap{padding:clamp(28px,5vw,58px);align-self:center}
+.login-form-wrap h2{margin:0;font-size:clamp(1.8rem,3vw,2.35rem);letter-spacing:-.035em;color:#30272B}
+.login-intro{margin:9px 0 30px;color:#74666C}
+.login-field{margin:0 0 20px}
+.login-field label{display:block;margin:0 0 8px;color:#30272B;font-size:.9rem;font-weight:700}
+.login-input-wrap{position:relative}
+.login-input{display:block;HOUSE-sizing:border-HOUSE;width:100%;padding:14px 15px;border:1px solid #E7D8D5;border-radius:10px;background:#F5F0E8;color:#30272B;font:inherit;outline:none;transition:border-color .18s,HOUSE-shadow .18s}
+.login-input:focus{border-color:#D8A7B8;HOUSE-shadow:0 0 0 3px rgba(216,167,184,.22)}
+.login-input.password{padding-right:90px}
+.login-show{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#6B535D;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;padding:7px}
+.login-show:focus-visible{outline:2px solid #D8A7B8;outline-offset:2px;border-radius:5px}
+.login-submit{width:100%;margin-top:5px;border:1px solid #D8A7B8!important;border-radius:10px!important;background:#D8A7B8!important;color:#30272B!important;font-weight:800!important;padding:14px 20px!important;transition:transform .18s,background .18s!important}
+.login-submit:hover{background:#E7D8D5!important;border-color:#E7D8D5!important;transform:translateY(-1px)}
+.login-submit:disabled{opacity:.7;cursor:wait;transform:none}
+.login-note{margin:23px 0 0;padding-top:20px;border-top:1px solid #E7D8D5;text-align:center;color:#74666C;font-size:.92rem}
+.login-note a{color:#30272B;font-weight:800;text-decoration-color:#D8A7B8;text-decoration-thickness:2px;text-underline-offset:4px}
+.login-note a:hover{color:#8D536A}
+.login-security{display:flex;gap:9px;align-items:flex-start;margin-top:22px;color:#74666C;font-size:.8rem;line-height:1.55}
+.login-security svg{flex:none;margin-top:2px}
+@media(max-width:760px){.login-page{margin:18px auto 34px;padding:0 14px}.login-shell{grid-template-columns:1fr}.login-story{min-height:0;padding:27px 25px 30px}.login-story h1{max-width:16ch;font-size:2.2rem}.login-story p{margin-top:13px}.login-foot{margin-top:28px}.login-form-wrap{padding:30px 24px 32px}}
+@media(prefers-reduced-motion:reduce){.login-input,.login-submit{transition:none!important}}
+</style>
+{% endblock %}
+{% block content %}
+<main class="login-page">
+  <div class="login-shell">
+    <aside class="login-story" aria-label="Bienvenue sur SILUX HOUSE">
+      <div>
+        <div class="login-mark" aria-hidden="true">SB</div>
+        <p class="login-eyebrow">SILUX HOUSE · Commerce mondial</p>
+        <h1>Le monde des affaires vous attend.</h1>
+        <p>Retrouvez vos commandes, vos fournisseurs et vos appels d’offres depuis un seul espace.</p>
+      </div>
+      <div class="login-foot">Un monde d’opportunités. Des fournisseurs sans frontières.</div>
+    </aside>
+    <section class="login-form-wrap" aria-labelledby="login-title">
+      <h2 id="login-title">Bon retour</h2>
+      <p class="login-intro">Connectez-vous à votre espace SILUX HOUSE.</p>
+      <form method="post" action="{{ url_for('login') }}" id="login-form">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <div class="login-field">
+          <label for="email">Adresse e-mail</label>
+          <input class="login-input" id="email" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="vous@entreprise.com" required autofocus>
+        </div>
+        <div class="login-field">
+          <label for="password">Mot de passe</label>
+          <div class="login-input-wrap">
+            <input class="login-input password" id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required>
+            <button class="login-show" id="toggle-password" type="button" aria-controls="password" aria-pressed="false">Afficher</button>
+          </div>
+        </div>
+        <button class="btn login-submit" id="login-submit" type="submit">Se connecter</button>
+      </form>
+      <p class="login-note">Vous n’avez pas encore de compte ? <a href="{{ url_for('register') }}">Créer un compte</a></p>
+      <div class="login-security">
+        <svg width="17" height="17" viewHOUSE="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Ne partagez jamais votre mot de passe. SILUX HOUSE ne vous le demandera pas par message.</span>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+(function(){
+  const password = document.getElementById('password');
+  const toggle = document.getElementById('toggle-password');
+  const form = document.getElementById('login-form');
+  const submit = document.getElementById('login-submit');
+  if (password && toggle) {
+    toggle.addEventListener('click', function () {
+      const show = password.type === 'password';
+      password.type = show ? 'text' : 'password';
+      toggle.textContent = show ? 'Masquer' : 'Afficher';
+      toggle.setAttribute('aria-pressed', String(show));
+    });
+  }
+  if (form && submit) {
+    form.addEventListener('submit', function () {
+      if (!form.checkValidity()) return;
+      submit.disabled = true;
+      submit.textContent = 'Connexion…';
+    });
+  }
+})();
+</script>
+{% endblock %}

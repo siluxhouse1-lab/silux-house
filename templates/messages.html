@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}Messagerie · SILUX HOUSE{% endblock %}
+{% block trade_banner %}{% endblock %}
+
+{% block head_extra %}
+<style>
+{% raw %}
+.inHOUSE{max-width:880px;margin-inline:auto}
+.inHOUSE-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.inHOUSE-head h1{margin:0;font-size:2rem;line-height:1.1}
+.inHOUSE-head p{margin:4px 0 0;color:var(--muted)}
+.inHOUSE-head .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--ink);border-radius:999px;font-size:.88rem;font-weight:500}
+.inHOUSE-head .pill b{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#C9372C;color:#fff;font-size:.78rem}
+
+.inHOUSE-card{border:1px solid var(--ink);background:#fff}
+.inHOUSE-card::before{content:"";display:block;height:3px;background:var(--gold-grad)}
+
+/* Onglets supérieurs + recherche interne */
+.itabs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:var(--ivory);border-bottom:1px solid var(--line)}
+.itabs nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.itabs nav::-webkit-scrollbar{display:none}
+.itab{flex:none;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:500;font-size:.92rem;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);transition:background .2s,color .2s,border-color .2s}
+.itab:hover{border-color:var(--gold);color:var(--ink)}
+.itab.on{background:var(--ink);border-color:var(--ink);color:var(--gold-l)}
+.itab .n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--rose);color:var(--ink);font-size:.74rem;font-weight:600}
+.itab.on .n{background:var(--gold-l);color:#151314}
+.itab .n.alert{background:#C9372C;color:#fff}
+.isearch{display:flex;flex:1;min-width:220px;max-width:320px;margin-left:auto;border:1px solid var(--line);border-radius:999px;background:#fff;overflow:hidden}
+.isearch:focus-within{border-color:var(--gold);HOUSE-shadow:0 0 0 2px var(--gold-l)}
+.isearch input{flex:1;min-width:0;border:0;background:transparent;padding:9px 16px;font:inherit;font-size:.92rem;color:var(--ink)}
+.isearch input:focus{outline:none}
+.isearch button{border:0;background:transparent;padding:0 14px;cursor:pointer;color:var(--ink)}
+.isearch button svg{display:block;width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8}
+.ifilter{display:flex;align-items:center;gap:10px;padding:8px 18px;background:#FFF6E3;border-bottom:1px solid var(--line);font-size:.88rem;color:#7A5410}
+.ifilter a{margin-left:auto;color:var(--ink);font-weight:500;text-underline-offset:3px}
+
+/* Liste */
+.ilist{list-style:none;margin:0;padding:0}
+.ilist li+li{border-top:1px solid var(--line)}
+.irow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:15px 18px;text-decoration:none;color:var(--ink);transition:background .15s}
+.irow:hover{background:var(--ivory)}
+.irow:focus-visible{outline-offset:-3px}
+.irow.unread{background:#FFFCF5}
+.irow.unread:hover{background:var(--ivory)}
+
+/* Avatars métalliques : or, argent, or rose */
+.mavatar{position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;font-family:var(--serif);font-weight:700;font-size:1.3rem;color:#151314;
+ text-shadow:0 1px 0 rgba(255,255,255,.45);
+ HOUSE-shadow:inset 0 1px 2px rgba(255,255,255,.7),inset 0 -2px 4px rgba(0,0,0,.18),0 2px 6px rgba(21,19,20,.18)}
+.mavatar.m0{background:linear-gradient(135deg,#8F6A28 0%,#E9D08F 28%,#FBEFC4 48%,#C9A257 72%,#8F6A28 100%);border:1px solid #A8812F}
+.mavatar.m1{background:linear-gradient(135deg,#7D7878 0%,#DAD6D6 30%,#FFFFFF 50%,#B4AFAF 74%,#7D7878 100%);border:1px solid #9A9595}
+.mavatar.m2{background:linear-gradient(135deg,#A9645A 0%,#EDB8AE 30%,#FFE3DC 50%,#D49488 74%,#A9645A 100%);border:1px solid #B97A70}
+.mavatar .ub{position:absolute;top:-4px;right:-4px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#C9372C;color:#fff;border:2px solid #fff;font-family:var(--sans);font-size:.7rem;font-weight:600;text-shadow:none;HOUSE-shadow:none}
+
+.ibody{min-width:0}
+.itop{display:flex;align-items:baseline;gap:10px}
+.itop strong{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.irow.unread .itop strong{font-weight:700}
+.iprod{display:block;margin-top:1px;color:var(--orange);font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iprev{display:flex;align-items:center;gap:7px;margin-top:3px;color:var(--muted);font-size:.92rem;min-width:0}
+.irow.unread .iprev{color:var(--ink);font-weight:500}
+.iprev span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iprev .tagq{flex:none;font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--gold-l)}
+.iprev .tagn{flex:none;font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:#EAF5EF;color:#1C5A41}
+.iside{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.iside time{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.irow.unread .iside time{color:var(--ink);font-weight:600}
+.ithumb{width:42px;height:42px;object-fit:cover;border:1px solid var(--line);border-radius:3px;background:var(--rose)}
+.iph{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line);border-radius:3px;background:var(--rose);font-family:var(--serif);color:var(--orange)}
+.ucount{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#C9372C;color:#fff;font-size:.76rem;font-weight:600}
+
+/* Notifications */
+.nrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:flex-start;padding:15px 18px;color:var(--ink);text-decoration:none;transition:background .15s}
+a.nrow:hover{background:var(--ivory)}
+.nrow.unread{background:#FFFCF5}
+.nico{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--rose);border:1px solid var(--rose-2)}
+.nico svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5}
+.nico.order{background:#EAF5EF;border-color:#BFE0CF}
+.nico.quote{background:var(--gold-l);border-color:var(--gold)}
+.nrow strong{display:block;font-weight:600;line-height:1.3}
+.nrow p{margin:3px 0 0;color:var(--muted);font-size:.9rem}
+.nrow time{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.ndot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#C9372C;margin-right:6px;vertical-align:middle}
+
+.iempty{text-align:center;padding:56px 20px;color:var(--muted)}
+.iempty svg{width:52px;height:52px;stroke:var(--gold);fill:none;stroke-width:1.2;margin-bottom:10px}
+.iempty h2{margin:0 0 6px;font-size:1.3rem;color:var(--ink)}
+.iempty p{margin:0 auto 18px;max-width:42ch}
+
+@media (max-width:640px){
+ .inHOUSE-head h1{font-size:1.65rem}
+ .itabs{padding:10px 12px}
+ .isearch{max-width:none;flex-basis:100%;margin-left:0}
+ .irow,.nrow{padding:13px 12px;gap:11px}
+ .mavatar{width:46px;height:46px;font-size:1.15rem}
+ .iside .ithumb,.iside .iph{display:none}
+}
+{% endraw %}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set tab_names = {'orders':'Commandes','notification':'Notification','other':'Autres'} %}
+{% set kind_ico = {
+  'order':'<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  'quote':'<path d="M12 3v18M16.5 7.5c0-1.7-2-3-4.5-3S7.5 5.8 7.5 7.5s2 2.6 4.5 3.2 4.5 1.5 4.5 3.3-2 3-4.5 3-4.5-1.3-4.5-3"/>',
+  'rfq':'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  'info':'<path d="M12 8v.01M11 12h1v5h1"/><circle cx="12" cy="12" r="9"/>'
+} %}
+
+<div class="inHOUSE">
+  <div class="inHOUSE-head">
+    <div>
+      <h1>Messagerie</h1>
+      <p>Vos discussions avec les vendeurs et les acheteurs, vos offres et vos alertes.</p>
+    </div>
+    {% if counts.unread_total or counts.notification %}
+      <span class="pill">Non lus <b>{{ counts.unread_total + counts.notification }}</b></span>
+    {% endif %}
+  </div>
+
+  <section class="inHOUSE-card" aria-label="Boîte de réception">
+    <div class="itabs">
+      <nav aria-label="Filtrer la messagerie">
+        <a class="itab {{ 'on' if not tab }}" href="{{ url_for('messages_hub', q=q or None) }}" {{ 'aria-current=page' if not tab }}>Tous{% if counts.unread_total %}<span class="n alert">{{ counts.unread_total }}</span>{% endif %}</a>
+        <a class="itab {{ 'on' if tab == 'orders' }}" href="{{ url_for('messages_hub', tab='orders', q=q or None) }}" title="Discussions avec offres chiffrées" {{ 'aria-current=page' if tab == 'orders' }}>Commandes<span class="n">{{ counts.orders }}</span></a>
+        <a class="itab {{ 'on' if tab == 'notification' }}" href="{{ url_for('messages_hub', tab='notification') }}" title="Alertes de la plateforme" {{ 'aria-current=page' if tab == 'notification' }}>Notification{% if counts.notification %}<span class="n alert">{{ counts.notification }}</span>{% endif %}</a>
+        <a class="itab {{ 'on' if tab == 'other' }}" href="{{ url_for('messages_hub', tab='other', q=q or None) }}" title="Autres discussions" {{ 'aria-current=page' if tab == 'other' }}>Autres<span class="n">{{ counts.other }}</span></a>
+      </nav>
+      {% if tab != 'notification' %}
+      <form class="isearch" method="get" action="{{ url_for('messages_hub') }}" role="search">
+        {% if tab %}<input type="hidden" name="tab" value="{{ tab }}">{% endif %}
+        <input type="search" name="q" value="{{ q }}" maxlength="80" placeholder="Rechercher un contact, un produit, un message" aria-label="Rechercher dans la messagerie">
+        <button type="submit" aria-label="Rechercher"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+      </form>
+      {% endif %}
+    </div>
+
+    {% if q and tab != 'notification' %}
+    <div class="ifilter" role="status">
+      <span>Résultats pour « {{ q }} »{% if tab %} dans {{ tab_names[tab] }}{% endif %}</span>
+      <a href="{{ url_for('messages_hub', tab=tab or None) }}">Effacer</a>
+    </div>
+    {% endif %}
+
+    {% if tab == 'notification' %}
+      {% if notifications %}
+      <ul class="ilist">
+        {% for n in notifications %}
+        <li>
+          {% set ico = kind_ico.get(n.kind, kind_ico['info']) %}
+          {% if n.link and n.link.startswith('/') and not n.link.startswith('//') %}<a class="nrow {{ 'unread' if not n.is_read }}" href="{{ n.link }}">{% else %}<div class="nrow {{ 'unread' if not n.is_read }}">{% endif %}
+            <span class="nico {{ n.kind }}" aria-hidden="true"><svg viewHOUSE="0 0 24 24">{{ ico|safe }}</svg></span>
+            <div>
+              <strong>{% if not n.is_read %}<span class="ndot" title="Non lu"></span>{% endif %}{{ n.title }}</strong>
+              {% if n.body %}<p>{{ n.body }}</p>{% endif %}
+            </div>
+            <time datetime="{{ n.created_at }}">{{ n.created_at[8:10] }}/{{ n.created_at[5:7] }} {{ n.created_at[11:16] }}</time>
+          {% if n.link and n.link.startswith('/') and not n.link.startswith('//') %}</a>{% else %}</div>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="iempty">
+        <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15L6 17z"/><path d="M10 21h4"/></svg>
+        <h2>Aucune notification</h2>
+        <p>Les alertes sur vos commandes, vos offres et vos appels d'offres apparaîtront ici.</p>
+      </div>
+      {% endif %}
+
+    {% elif conversations %}
+      <ul class="ilist">
+        {% for c in conversations %}
+        <li>
+          <a class="irow {{ 'unread' if c.unread }}" href="{{ url_for('chat_view', conversation_id=c.id) }}" aria-label="Discussion avec {{ c.other_company }}{% if c.unread %}, {{ c.unread }} message{{ 's' if c.unread > 1 }} non lu{{ 's' if c.unread > 1 }}{% endif %}">
+            <span class="mavatar m{{ c.other_id % 3 }}" aria-hidden="true">{{ (c.other_company or c.other_name or '?')[:1]|upper }}{% if c.unread %}<span class="ub">{{ c.unread if c.unread < 100 else '99+' }}</span>{% endif %}</span>
+            <div class="ibody">
+              <div class="itop"><strong>{{ c.other_company }}</strong></div>
+              <span class="iprod">{{ c.product_name }}</span>
+              <div class="iprev">
+                {% if c.last_kind == 'quote' %}<span class="tagq">Offre</span>
+                {% elif c.last_kind == 'system' %}<span class="tagn">Info</span>{% endif %}
+                <span>{% if c.last_body %}{{ c.last_body|truncate(90, True) }}{% elif c.last_kind == 'quote' %}Offre spéciale{% else %}Nouvelle discussion{% endif %}</span>
+              </div>
+            </div>
+            <div class="iside">
+              <time datetime="{{ c.last_message_at }}">{{ c.last_message_at[8:10] }}/{{ c.last_message_at[5:7] }} {{ c.last_message_at[11:16] }}</time>
+              {% if c.unread %}<span class="ucount">{{ c.unread if c.unread < 100 else '99+' }}</span>
+              {% elif c.product_image %}<img class="ithumb" src="{{ c.product_image }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+              {% else %}<span class="iph" aria-hidden="true">{{ c.product_name[:1]|upper }}</span>{% endif %}
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+
+    {% else %}
+      <div class="iempty">
+        <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+        {% if q %}
+          <h2>Aucun résultat</h2>
+          <p>Aucune discussion ne correspond à « {{ q }} ».</p>
+          <a class="btn secondary" href="{{ url_for('messages_hub', tab=tab or None) }}">Effacer la recherche</a>
+        {% elif tab == 'orders' %}
+          <h2>Aucune offre en cours</h2>
+          <p>Les discussions contenant un devis chiffré apparaîtront ici.</p>
+        {% elif tab == 'other' %}
+          <h2>Aucune autre discussion</h2>
+          <p>Vos échanges sans offre chiffrée apparaîtront ici.</p>
+        {% else %}
+          <h2>Aucune discussion</h2>
+          <p>Ouvrez une fiche produit et utilisez le bouton de contact pour négocier un prix avec le vendeur.</p>
+          <a class="btn" href="{{ url_for('home') }}">Parcourir les produits</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

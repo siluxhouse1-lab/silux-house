@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Mes produits — SILUX HOUSE{% endblock %}
+{% block content %}
+<style>
+.seller-page{--sp-ink:#30272B;--sp-ivory:#F5F0E8;--sp-pink:#D8A7B8;--sp-pale:#E7D8D5;color:var(--sp-ink)}
+.seller-page *{HOUSE-sizing:border-HOUSE}.seller-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:28px 0 24px;border-bottom:1px solid var(--sp-pale);margin-bottom:28px}.seller-kicker{font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;font-weight:600;color:#806674}.seller-hero h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;margin:.35rem 0 .6rem}.seller-hero p{max-width:650px;color:#74666C;margin:0}.seller-grid{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.6fr);gap:24px;align-items:start}.seller-panel{background:#fffaf5;border:1px solid var(--sp-pale);border-radius:14px;overflow:hidden}.seller-panel-head{padding:20px 22px;border-bottom:1px solid var(--sp-pale);background:rgba(231,216,213,.35)}.seller-panel-head h2{font-size:1.35rem;margin:0}.seller-panel-head p{margin:5px 0 0;color:#74666C;font-size:.9rem}.seller-form{padding:22px;display:grid;gap:15px}.seller-form label{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}.seller-form input,.seller-form select,.seller-form textarea{width:100%;min-width:0;border:1px solid #d9c9cc;border-radius:8px;background:#fffdfb;color:#30272B;padding:11px 12px;font:inherit}.seller-form input:focus,.seller-form select:focus,.seller-form textarea:focus{outline:2px solid #D8A7B8;outline-offset:1px}.seller-form textarea{resize:vertical;min-height:105px}.seller-help{display:block;color:#806f75;font-size:.78rem;margin-top:5px}.seller-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.seller-submit{width:100%;border:1px solid #30272B;background:#30272B;color:#fff;border-radius:8px;padding:13px 16px;font:inherit;font-weight:600;cursor:pointer}.seller-submit:hover{background:#D8A7B8;color:#30272B;border-color:#D8A7B8}.seller-products-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 22px;border-bottom:1px solid var(--sp-pale)}.seller-count{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 9px;border-radius:99px;background:#E7D8D5;font-size:.85rem;font-weight:700}.seller-product-list{display:grid}.seller-product{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:15px;padding:17px 20px;border-bottom:1px solid #eee4e1}.seller-product:last-child{border-bottom:0}.seller-thumb{width:76px;height:76px;border-radius:9px;background:#F5F0E8;display:grid;place-items:center;overflow:hidden;color:#9b818a}.seller-thumb img{width:100%;height:100%;object-fit:cover}.seller-product h3{font-family:inherit;font-size:1rem;font-weight:650;margin:0 0 4px}.seller-meta{color:#74666C;font-size:.83rem;display:flex;flex-wrap:wrap;gap:6px 12px}.seller-price{font-weight:700;white-space:nowrap;text-align:right}.seller-price small{display:block;font-weight:400;color:#74666C;font-size:.78rem}.seller-empty{text-align:center;padding:42px 24px;color:#74666C}.seller-empty .empty-icon{font-size:2rem;margin-bottom:8px}.seller-empty h3{font-family:inherit;color:#30272B;margin:0 0 5px;font-size:1.05rem}.seller-note{margin:16px 22px 22px;padding:12px 14px;background:#F5F0E8;border-radius:8px;color:#66565D;font-size:.83rem}
+@media(max-width:850px){.seller-grid{grid-template-columns:1fr}.seller-hero{align-items:flex-start;flex-direction:column}.seller-product{grid-template-columns:60px minmax(0,1fr)}.seller-thumb{width:60px;height:60px}.seller-price{grid-column:2;text-align:left}.seller-product{row-gap:8px}.seller-two{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.seller-form{padding:16px}.seller-panel-head,.seller-products-head{padding:16px}.seller-product{padding:15px}.seller-two{grid-template-columns:1fr}.seller-hero{padding-top:12px}}
+</style>
+<div class="seller-page">
+  <header class="seller-hero">
+    <div>
+      <div class="seller-kicker">Espace vendeur · Catalogue</div>
+      <h1>Mes produits</h1>
+      <p>Présentez vos offres aux acheteurs du monde entier avec des informations claires et des conditions commerciales précises.</p>
+    </div>
+    <a class="btn secondary" href="{{ url_for('seller_orders') }}">Voir mes commandes</a>
+  </header>
+
+  <div class="seller-grid">
+    <section class="seller-panel" aria-labelledby="add-product-title">
+      <div class="seller-panel-head">
+        <h2 id="add-product-title">Ajouter un produit</h2>
+        <p>Renseignez les détails de votre offre.</p>
+      </div>
+      <form class="seller-form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <div>
+          <label for="product-name">Nom du produit *</label>
+          <input id="product-name" name="name" type="text" maxlength="150" required placeholder="Ex. : Café en grains premium">
+        </div>
+        <div>
+          <label for="product-description">Description</label>
+          <textarea id="product-description" name="description" maxlength="3000" placeholder="Caractéristiques, origine, conditionnement…"></textarea>
+          <span class="seller-help">Maximum 3 000 caractères.</span>
+        </div>
+        <div>
+          <label for="product-category">Catégorie *</label>
+          <select id="product-category" name="category_id" required>
+            <option value="">Choisir une catégorie</option>
+            {% for category in categories %}
+            <option value="{{ category['id'] }}">{{ category['name'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="seller-two">
+          <div>
+            <label for="product-price">Prix unitaire (FCFA) *</label>
+            <input id="product-price" name="price" type="number" min="0" step="1" required placeholder="2500">
+          </div>
+          <div>
+            <label for="product-old-price">Ancien prix (FCFA)</label>
+            <input id="product-old-price" name="old_price" type="number" min="0" step="1" placeholder="Facultatif">
+          </div>
+        </div>
+        <div class="seller-two">
+          <div>
+            <label for="product-stock">Stock disponible *</label>
+            <input id="product-stock" name="stock" type="number" min="0" max="10000000" step="1" required value="0">
+          </div>
+          <div>
+            <label for="product-moq">Quantité minimale (MOQ) *</label>
+            <input id="product-moq" name="moq" type="number" min="1" max="1000000" step="1" required value="1">
+          </div>
+        </div>
+        <div>
+          <label for="product-image">Image du produit</label>
+          <input id="product-image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+          <span class="seller-help">Formats acceptés par le serveur : JPG, PNG ou WEBP.</span>
+        </div>
+        <div>
+          <label for="product-image-url">Ou URL de l’image</label>
+          <input id="product-image-url" name="image_url" type="url" maxlength="500" placeholder="https://…">
+          <span class="seller-help">Si un fichier est envoyé, celui-ci remplace l’URL.</span>
+        </div>
+        <button class="seller-submit" type="submit">Ajouter au catalogue</button>
+      </form>
+    </section>
+
+    <section class="seller-panel" aria-labelledby="my-products-title">
+      <div class="seller-products-head">
+        <div>
+          <h2 id="my-products-title" style="margin:0;font-size:1.35rem">Votre catalogue</h2>
+          <p style="margin:4px 0 0;color:#74666C;font-size:.88rem">Produits associés à votre compte vendeur.</p>
+        </div>
+        <span class="seller-count" aria-label="Nombre de produits">{{ products|length }}</span>
+      </div>
+      {% if products %}
+      <div class="seller-product-list">
+        {% for product in products %}
+        <article class="seller-product">
+          <div class="seller-thumb">
+            {% if product['image_url'] %}
+            <img src="{{ product['image_url'] }}" alt="{{ product['name'] }}" loading="lazy">
+            {% else %}
+            <span aria-hidden="true">◇</span>
+            {% endif %}
+          </div>
+          <div>
+            <h3>{{ product['name'] }}</h3>
+            <div class="seller-meta">
+              <span>{{ product['category_name'] }}</span>
+              <span>Stock : {{ product['stock'] }}</span>
+              <span>MOQ : {{ product['moq'] }}</span>
+            </div>
+            {% if product['description'] %}
+            <p style="margin:7px 0 0;color:#74666C;font-size:.84rem;overflow-wrap:anywhere">{{ product['description']|truncate(125) }}</p>
+            {% endif %}
+          </div>
+          <div class="seller-price">
+            {{ '{:,.0f}'.format(product['price']|float).replace(',', ' ') }} FCFA
+            {% if product['old_price'] %}<small><s>{{ '{:,.0f}'.format(product['old_price']|float).replace(',', ' ') }} FCFA</s></small>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="seller-empty">
+        <div class="empty-icon" aria-hidden="true">◇</div>
+        <h3>Votre catalogue commence ici</h3>
+        <p>Ajoutez votre premier produit à l’aide du formulaire.</p>
+      </div>
+      {% endif %}
+      <div class="seller-note">Conseil : utilisez un nom précis, une description honnête et des quantités à jour pour aider les acheteurs à comparer votre offre.</div>
+    </section>
+  </div>
+</div>
+{% endblock %}

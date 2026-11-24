@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% block title %}Discussion · {{ conversation.product_name }} · SILUX HOUSE{% endblock %}
+{% block trade_banner %}{% endblock %}
+
+{% block head_extra %}
+<style>
+{% raw %}
+.chat-page{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.chat-main{border:1px solid var(--ink);background:#fff;display:flex;flex-direction:column;min-width:0}
+.chat-main::before{content:"";display:block;height:3px;background:var(--gold-grad)}
+
+/* En-tête de discussion */
+.chat-head{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.chat-back{flex:none;display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;text-decoration:none;color:var(--ink);transition:background .2s,border-color .2s}
+.chat-back:hover{background:var(--ivory);border-color:var(--gold)}
+.chat-back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+.avatar{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-family:var(--serif);font-weight:700;font-size:1.15rem;color:#151314;
+ background:var(--gold-grad);border:1px solid var(--gold)}
+.avatar.sm{width:30px;height:30px;font-size:.85rem}
+.chat-who{min-width:0;flex:1}
+.chat-who strong{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-who span{display:block;color:var(--muted);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-offer-link{flex:none;font-size:.88rem;font-weight:500;text-decoration:none;padding:8px 14px;border:1px solid var(--ink);border-radius:2px;transition:background .2s,color .2s}
+.chat-offer-link:hover{background:var(--ink);color:#fff}
+
+/* Onglets supérieurs + recherche interne */
+.chat-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 18px;background:var(--ivory);border-bottom:1px solid var(--line)}
+.chat-tabs nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chat-tabs nav::-webkit-scrollbar{display:none}
+.ctab{flex:none;text-decoration:none;font-size:.88rem;font-weight:500;padding:7px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);transition:background .2s,color .2s,border-color .2s}
+.ctab:hover{border-color:var(--gold);color:var(--ink)}
+.ctab.on{background:var(--ink);border-color:var(--ink);color:var(--gold-l)}
+.chat-search{display:flex;margin-left:auto;min-width:200px;flex:1;max-width:300px;border:1px solid var(--line);border-radius:999px;background:#fff;overflow:hidden}
+.chat-search:focus-within{border-color:var(--gold);HOUSE-shadow:0 0 0 2px var(--gold-l)}
+.chat-search input{flex:1;min-width:0;border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.9rem;color:var(--ink)}
+.chat-search input:focus{outline:none}
+.chat-search button{border:0;background:transparent;padding:0 12px;cursor:pointer;color:var(--ink)}
+.chat-search button svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;display:block}
+.chat-filter{display:flex;align-items:center;gap:10px;padding:8px 18px;background:#FFF6E3;border-bottom:1px solid var(--line);font-size:.88rem;color:#7A5410}
+.chat-filter a{margin-left:auto;color:var(--ink);font-weight:500;text-underline-offset:3px}
+
+/* Fil de messages */
+.thread{display:flex;flex-direction:column;gap:10px;padding:20px 18px;min-height:300px;max-height:64vh;overflow-y:auto;background:
+ linear-gradient(#fff,#fff),var(--ivory);scroll-behavior:smooth}
+.day{align-self:center;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--ivory);border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-block:6px}
+.row{display:flex;align-items:flex-end;gap:8px;max-width:100%}
+.row.mine{flex-direction:row-reverse}
+.bubble{max-width:min(78%,560px);padding:10px 14px;border-radius:14px;line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
+.row.theirs .bubble{background:var(--ivory);border:1px solid var(--line);border-bottom-left-radius:3px}
+.row.mine .bubble{background:var(--ink);color:#fff;border-bottom-right-radius:3px}
+.bubble p{margin:0;white-space:pre-wrap}
+.bubble time{display:block;margin-top:4px;font-size:.72rem;opacity:.65;text-align:right}
+.sysmsg{align-self:center;display:flex;align-items:center;gap:8px;max-width:90%;font-size:.86rem;color:#1C5A41;background:#EAF5EF;border:1px solid #BFE0CF;border-radius:999px;padding:6px 14px;text-align:center}
+.sysmsg svg{flex:none;width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.sysmsg time{opacity:.7;font-size:.74rem}
+.empty-thread{margin:auto;text-align:center;color:var(--muted);padding:30px 10px}
+.empty-thread svg{width:44px;height:44px;stroke:var(--gold);fill:none;stroke-width:1.3;margin-bottom:8px}
+
+/* Carte de devis interactive */
+.qcard{align-self:stretch;margin:6px auto;width:min(100%,460px);border:1px solid var(--ink);background:#fff;border-radius:4px;overflow:hidden;HOUSE-shadow:0 8px 24px rgba(21,19,20,.08)}
+.qcard.mine-q{margin-left:auto;margin-right:0}
+.qcard.theirs-q{margin-left:0;margin-right:auto}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;color:var(--gold-l);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+.qhead b{font-weight:600}
+.qpill{font-size:.72rem;letter-spacing:.04em;text-transform:none;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--gold-l);color:#151314;white-space:nowrap}
+.qpill.accepted,.qpill.ordered{background:#CDEBDC;color:#1C5A41}
+.qpill.declined,.qpill.withdrawn,.qpill.expired,.qpill.superseded{background:#EDE6E3;color:#6E6366}
+.qbody{padding:14px 16px}
+.qprod{display:flex;gap:12px;align-items:center}
+.qprod img,.qprod .ph{flex:none;width:54px;height:54px;object-fit:cover;border-radius:3px;border:1px solid var(--line);background:var(--rose)}
+.qprod .ph{display:grid;place-items:center;font-family:var(--serif);color:var(--orange)}
+.qprod strong{display:block;font-weight:500;line-height:1.3}
+.qprice{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:12px}
+.qprice .now{font-family:var(--serif);font-size:1.7rem;font-weight:700;line-height:1}
+.qprice .now small{font-family:var(--sans);font-size:.8rem;font-weight:500;color:var(--muted)}
+.qprice .was{color:var(--muted);text-decoration:line-through;font-size:.92rem}
+.qprice .save{font-size:.76rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--rose);color:#8A2E22}
+.qmeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:.88rem}
+.qmeta div{background:var(--ivory);border:1px solid var(--line);border-radius:3px;padding:7px 10px}
+.qmeta span{display:block;color:var(--muted);font-size:.74rem;letter-spacing:.04em;text-transform:uppercase}
+.qmeta b{font-weight:600}
+.qnote{margin:12px 0 0;padding:8px 12px;border-left:3px solid var(--gold);background:var(--ivory);font-size:.9rem;white-space:pre-wrap}
+.qvalid{margin:10px 0 0;font-size:.8rem;color:var(--muted)}
+.qacts{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px}
+.qacts form{display:contents}
+.qacts .btn{flex:1;min-width:130px;padding:11px 14px;font-size:.92rem}
+.btn.gold{background:var(--gold-grad);border-color:var(--gold);color:#151314;font-weight:600}
+.btn.gold:hover{filter:brightness(1.06);background:var(--gold-grad);border-color:var(--gold);color:#151314}
+
+/* Zone de saisie */
+.composer{border-top:1px solid var(--line);padding:12px 18px;background:#fff}
+.composer form{display:flex;gap:10px;align-items:flex-end}
+.composer textarea{flex:1;min-height:46px;max-height:140px;resize:none;border:1px solid var(--line);border-radius:10px;padding:11px 14px;font:inherit;color:var(--ink);background:var(--ivory)}
+.composer textarea:focus{outline:none;border-color:var(--gold);background:#fff;HOUSE-shadow:0 0 0 2px var(--gold-l)}
+.composer .btn{flex:none;height:46px;padding-inline:22px}
+.composer small{display:block;margin-top:6px;color:var(--muted);font-size:.78rem}
+
+/* Colonne latérale */
+.aside{display:grid;gap:16px;position:sticky;top:150px}
+.card{border:1px solid var(--line);background:#fff;border-radius:2px;overflow:hidden}
+.card h3{margin:0;padding:12px 16px;font-size:1.05rem;border-bottom:1px solid var(--line);background:var(--ivory)}
+.card .pad{padding:14px 16px}
+.pctx{display:flex;gap:12px}
+.pctx img,.pctx .ph{flex:none;width:76px;height:76px;object-fit:cover;border:1px solid var(--line);border-radius:3px;background:var(--rose)}
+.pctx .ph{display:grid;place-items:center;font-family:var(--serif);font-size:1.6rem;color:var(--orange)}
+.pctx a{font-weight:500;text-decoration:none;line-height:1.3;display:block}
+.pctx a:hover{color:var(--orange)}
+.pctx .price{font-family:var(--serif);font-weight:700;font-size:1.25rem;margin-top:4px}
+.pctx .old{color:var(--muted);text-decoration:line-through;font-size:.85rem;margin-left:6px;font-family:var(--sans);font-weight:400}
+.facts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.fact{font-size:.78rem;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--ivory)}
+.fact b{font-weight:600}
+.trust{display:grid;gap:8px;margin:0;padding:0;list-style:none;font-size:.9rem}
+.trust li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:7px}
+.trust li:last-child{border:0;padding:0}
+.trust span{color:var(--muted)}
+.ta-mini{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;color:var(--muted);line-height:1.45}
+.ta-mini svg{flex:none;width:22px;height:22px;stroke:var(--orange);fill:none;stroke-width:1.6;margin-top:1px}
+.ta-mini b{color:var(--ink);font-weight:600}
+
+/* Panneau exclusif vendeur */
+.seller-panel{border:1px solid var(--ink)}
+.seller-panel::before{content:"";display:block;height:3px;background:var(--gold-grad)}
+.seller-panel h3{display:flex;align-items:center;gap:8px;background:#151314;color:var(--gold-l);border:0}
+.seller-panel h3 span{margin-left:auto;font-family:var(--sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--gold-l);color:#151314}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label{font-size:.82rem;font-weight:600;letter-spacing:.02em}
+.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:2px;padding:10px 12px;font:inherit;color:var(--ink);background:#fff}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--gold);HOUSE-shadow:0 0 0 2px var(--gold-l)}
+.field textarea{min-height:70px;resize:vertical}
+.field small{color:var(--muted);font-size:.78rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.live{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:2px 0 14px;padding:10px 12px;background:var(--ivory);border:1px solid var(--line);border-radius:2px;font-size:.9rem}
+.live b{font-family:var(--serif);font-size:1.15rem}
+.live .disc{font-size:.76rem;font-weight:600;color:#1C5A41}
+.qhist{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:.86rem}
+.qhist li{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px dashed var(--line);padding-bottom:8px}
+.qhist li:last-child{border:0;padding-bottom:0}
+.qhist form{margin:0}
+.qhist button{border:1px solid var(--line);background:#fff;border-radius:2px;padding:3px 10px;font:inherit;font-size:.78rem;cursor:pointer}
+.qhist button:hover{border-color:#C9372C;color:#9B1C12}
+
+@media (max-width:1000px){
+ .chat-page{grid-template-columns:1fr}
+ .aside{position:static}
+}
+@media (max-width:560px){
+ .chat-head{padding:12px}
+ .chat-offer-link{display:none}
+ .chat-tabs{padding:10px 12px}
+ .chat-search{max-width:none;flex-basis:100%;margin-left:0}
+ .thread{padding:14px 12px;max-height:58vh}
+ .bubble{max-width:86%}
+ .composer{padding:10px 12px}
+ .composer .btn{padding-inline:16px}
+ .two{grid-template-columns:1fr 1fr}
+}
+{% endraw %}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set qstates = {'pending':'En attente','accepted':'Acceptée','declined':'Refusée','withdrawn':'Retirée','superseded':'Remplacée','ordered':'Commandée','expired':'Expirée'} %}
+{% set cid = conversation.id %}
+{% set ns = namespace(day='') %}
+
+<div class="chat-page">
+  <section class="chat-main" aria-label="Discussion avec {{ other.company }}">
+
+    <header class="chat-head">
+      <a class="chat-back" href="{{ url_for('messages_hub') }}" aria-label="Retour à la messagerie">
+        <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <span class="avatar" aria-hidden="true">{{ (other.company or other.name or '?')[:1]|upper }}</span>
+      <div class="chat-who">
+        <strong>{{ other.company }}</strong>
+        <span>{{ 'Acheteur' if is_seller else 'Vendeur' }} · {{ conversation.product_name }}</span>
+      </div>
+      {% if can_quote %}<a class="chat-offer-link" href="#offre">Faire une offre</a>{% endif %}
+    </header>
+
+    <div class="chat-tabs">
+      <nav aria-label="Filtrer la discussion">
+        <a class="ctab {{ 'on' if not tab }}" href="{{ url_for('chat_view', conversation_id=cid, q=q or None) }}" {{ 'aria-current=page' if not tab }}>Tous</a>
+        <a class="ctab {{ 'on' if tab == 'orders' }}" href="{{ url_for('chat_view', conversation_id=cid, tab='orders', q=q or None) }}" title="Offres et devis chiffrés" {{ 'aria-current=page' if tab == 'orders' }}>Commandes</a>
+        <a class="ctab {{ 'on' if tab == 'notification' }}" href="{{ url_for('chat_view', conversation_id=cid, tab='notification', q=q or None) }}" title="Événements : offre acceptée, refusée…" {{ 'aria-current=page' if tab == 'notification' }}>Notification</a>
+        <a class="ctab {{ 'on' if tab == 'other' }}" href="{{ url_for('chat_view', conversation_id=cid, tab='other', q=q or None) }}" title="Messages échangés" {{ 'aria-current=page' if tab == 'other' }}>Autres</a>
+      </nav>
+      <form class="chat-search" method="get" action="{{ url_for('chat_view', conversation_id=cid) }}" role="search">
+        {% if tab %}<input type="hidden" name="tab" value="{{ tab }}">{% endif %}
+        <input type="search" name="q" value="{{ q }}" maxlength="80" placeholder="Rechercher dans la discussion" aria-label="Rechercher dans la discussion">
+        <button type="submit" aria-label="Rechercher"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+      </form>
+    </div>
+
+    {% if q or tab %}
+    <div class="chat-filter" role="status">
+      <span>Filtre actif{% if tab %} : {{ {'orders':'Commandes','notification':'Notification','other':'Autres'}[tab] }}{% endif %}{% if q %} · « {{ q }} »{% endif %}</span>
+      <a href="{{ url_for('chat_view', conversation_id=cid) }}">Tout afficher</a>
+    </div>
+    {% endif %}
+
+    <div class="thread" id="thread" tabindex="0" aria-live="polite">
+      {% if not messages %}
+        <div class="empty-thread">
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+          <p>{% if q or tab %}Aucun message ne correspond à ce filtre.{% else %}Aucun message pour l'instant. Écrivez le premier !{% endif %}</p>
+        </div>
+      {% endif %}
+
+      {% for m in messages %}
+        {% set d = (m.created_at or '')[:10] %}
+        {% if d != ns.day %}{% set ns.day = d %}<div class="day">{{ d[8:10] }}/{{ d[5:7] }}/{{ d[:4] }}</div>{% endif %}
+
+        {% if m.kind == 'system' %}
+          <div class="sysmsg"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>{{ m.body }}</span><time datetime="{{ m.created_at }}">{{ (m.created_at or '')[11:16] }}</time></div>
+
+        {% elif m.kind == 'quote' and m.quote %}
+          {% set qt = m.quote %}
+          <article class="qcard {{ 'mine-q' if m.mine else 'theirs-q' }}" aria-label="Offre spéciale">
+            <div class="qhead noir"><b>Offre spéciale</b><span class="qpill {{ qt.state }}">{{ qstates.get(qt.state, qt.state) }}</span></div>
+            <div class="qbody">
+              <div class="qprod">
+                {% if conversation.product_image %}<img src="{{ conversation.product_image }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="ph" aria-hidden="true">{{ conversation.product_name[:1]|upper }}</span>{% endif %}
+                <strong>{{ conversation.product_name }}</strong>
+              </div>
+              <div class="qprice">
+                <span class="now">{{ qt.custom_price|fcfa }} <small>FCFA / unité</small></span>
+                {% if conversation.product_price and conversation.product_price > qt.custom_price %}
+                  <span class="was">{{ conversation.product_price|fcfa }}</span>
+                  <span class="save">-{{ ((conversation.product_price - qt.custom_price) / conversation.product_price * 100)|round|int }} %</span>
+                {% endif %}
+              </div>
+              <div class="qmeta">
+                <div><span>Quantité</span><b>{{ qt.quantity }} unité{{ 's' if qt.quantity > 1 }}</b></div>
+                <div><span>Total</span><b>{{ qt.total|fcfa }} FCFA</b></div>
+              </div>
+              {% if qt.note %}<p class="qnote">{{ qt.note }}</p>{% endif %}
+              <p class="qvalid">{% if qt.state in ('pending','accepted') %}Valable jusqu'au {{ qt.expires_at[8:10] }}/{{ qt.expires_at[5:7] }}/{{ qt.expires_at[:4] }}{% else %}Offre {{ qstates.get(qt.state, qt.state)|lower }}{% endif %} · envoyée à {{ (m.created_at or '')[11:16] }}</p>
+            </div>
+            {% if qt.can_accept or qt.can_decline or qt.can_withdraw %}
+            <div class="qacts">
+              {% if qt.can_accept %}
+                <form method="post" action="{{ url_for('quote_accept', quote_id=qt.id) }}">
+                  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                  <button class="btn gold" type="submit">{{ 'Ajouter au panier' if qt.state == 'accepted' else "Accepter l'offre" }}</button>
+                </form>
+              {% endif %}
+              {% if qt.state == 'accepted' and qt.can_accept %}<a class="btn secondary" href="{{ url_for('view_cart') }}">Voir le panier</a>{% endif %}
+              {% if qt.can_decline %}
+                <form method="post" action="{{ url_for('quote_decline', quote_id=qt.id) }}">
+                  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                  <button class="btn secondary" type="submit">Refuser</button>
+                </form>
+              {% endif %}
+              {% if qt.can_withdraw %}
+                <form method="post" action="{{ url_for('quote_decline', quote_id=qt.id) }}">
+                  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                  <button class="btn secondary" type="submit">Retirer l'offre</button>
+                </form>
+              {% endif %}
+            </div>
+            {% endif %}
+          </article>
+
+        {% else %}
+          <div class="row {{ 'mine' if m.mine else 'theirs' }}">
+            {% if not m.mine %}<span class="avatar sm" aria-hidden="true">{{ (m.sender_company or m.sender_name or '?')[:1]|upper }}</span>{% endif %}
+            <div class="bubble"><p>{{ m.body }}</p><time datetime="{{ m.created_at }}">{{ (m.created_at or '')[11:16] }}</time></div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      <span id="bas"></span>
+    </div>
+
+    <div class="composer">
+      <form method="post" action="{{ url_for('chat_send', conversation_id=cid) }}" id="sendform">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <label for="body" class="skip" style="position:absolute;left:-9999px">Votre message</label>
+        <textarea id="body" name="body" rows="1" maxlength="2000" required placeholder="Écrivez votre message…"></textarea>
+        <button class="btn" type="submit" id="sendbtn">Envoyer</button>
+      </form>
+      <small>Restez sur SILUX HOUSE pour payer : seuls les paiements en ligne sont couverts par Silux Protection.</small>
+    </div>
+  </section>
+
+  <aside class="aside" aria-label="Détails">
+
+    <div class="card">
+      <h3>Produit concerné</h3>
+      <div class="pad">
+        <div class="pctx">
+          {% if conversation.product_image %}<img src="{{ conversation.product_image }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="ph" aria-hidden="true">{{ conversation.product_name[:1]|upper }}</span>{% endif %}
+          <div>
+            <a href="{{ url_for('product_detail', product_id=conversation.product_id) }}">{{ conversation.product_name }}</a>
+            <div class="price">{{ conversation.product_price|fcfa }} FCFA{% if conversation.product_old_price and conversation.product_old_price > conversation.product_price %}<span class="old">{{ conversation.product_old_price|fcfa }}</span>{% endif %}</div>
+          </div>
+        </div>
+        <div class="facts">
+          <span class="fact">MOQ <b>{{ conversation.product_moq }}</b></span>
+          <span class="fact">Stock <b>{{ conversation.product_stock }}</b></span>
+          {% if not conversation.product_active %}<span class="fact">Indisponible</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if not is_seller %}
+    <div class="card">
+      <h3>Fiabilité du vendeur</h3>
+      <div class="pad">
+        <ul class="trust">
+          <li><span>Entreprise</span><b>{{ other.company }}</b></li>
+          {% if other.company_type %}<li><span>Type</span><b>{{ other.company_type }}</b></li>{% endif %}
+          <li><span>Ancienneté</span><b>{% if other.years_active %}{{ other.years_active }} an{{ 's' if other.years_active > 1 }}{% else %}Non renseignée{% endif %}</b></li>
+          <li><span>Taux de réachat</span><b>{{ other.reorder_rate|round|int }} %</b></li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if can_quote %}
+    <div class="card seller-panel" id="offre">
+      <h3>Panneau vendeur <span>Exclusif</span></h3>
+      <div class="pad">
+        <form method="post" action="{{ url_for('chat_quote', conversation_id=cid) }}" id="quoteform">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <div class="two">
+            <div class="field">
+              <label for="custom_price">Prix unitaire (FCFA)</label>
+              <input id="custom_price" name="custom_price" type="number" inputmode="numeric" min="5" max="{{ conversation.product_price|int }}" step="5" required placeholder="{{ conversation.product_price|int }}" data-base="{{ conversation.product_price|int }}">
+            </div>
+            <div class="field">
+              <label for="quantity">Quantité</label>
+              <input id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="{{ conversation.product_stock }}" value="{{ [conversation.product_moq, conversation.product_stock]|min if conversation.product_stock > 0 else 1 }}" required>
+            </div>
+          </div>
+          <div class="live" aria-live="polite"><span>Total de l'offre</span><span><b id="qtotal">0</b> FCFA <span class="disc" id="qdisc"></span></span></div>
+          <div class="field">
+            <label for="note">Message joint (facultatif)</label>
+            <textarea id="note" name="note" maxlength="500" placeholder="Ex. : prix de gros, livraison offerte à Niamey…"></textarea>
+            <small>Prix catalogue : {{ conversation.product_price|fcfa }} FCFA · multiple de 5 · valable {{ quote_validity_days }} jours · stock {{ conversation.product_stock }}.</small>
+          </div>
+          <button class="btn gold" type="submit" style="width:100%">Envoyer l'offre à l'acheteur</button>
+        </form>
+
+        {% if quotes %}
+        <h4 style="margin:18px 0 8px;font-family:var(--serif);font-weight:500">Historique des offres</h4>
+        <ul class="qhist">
+          {% for qt in quotes %}
+          <li>
+            <span>{{ qt.custom_price|fcfa }} × {{ qt.quantity }}</span>
+            <span class="qpill {{ qt.state }}" style="background:var(--ivory);border:1px solid var(--line);color:var(--ink)">{{ qstates.get(qt.state, qt.state) }}</span>
+            {% if qt.can_withdraw %}
+            <form method="post" action="{{ url_for('quote_decline', quote_id=qt.id) }}">
+              <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+              <button type="submit">Retirer</button>
+            </form>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="pad ta-mini">
+        <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        <span><b>Silux Protection.</b> Une offre acceptée s'ajoute à votre panier au prix négocié. Le paiement en ligne reste sous séquestre jusqu'à la confirmation de réception.</span>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var thread=document.getElementById('thread');
+  if(thread && !location.search.match(/[?&](q|tab)=/)){ thread.scrollTop=thread.scrollHeight; }
+
+  var ta=document.getElementById('body'), form=document.getElementById('sendform'), btn=document.getElementById('sendbtn');
+  if(ta && form){
+    function grow(){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,140)+'px'; }
+    ta.addEventListener('input',grow);
+    ta.addEventListener('keydown',function(e){
+      if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); if(ta.value.trim()){ form.requestSubmit(); } }
+    });
+    form.addEventListener('submit',function(){ btn.disabled=true; btn.textContent='Envoi…'; });
+  }
+
+  var price=document.getElementById('custom_price'), qty=document.getElementById('quantity'),
+      total=document.getElementById('qtotal'), disc=document.getElementById('qdisc');
+  function fmt(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0'); }
+  function live(){
+    if(!price||!qty||!total) return;
+    var p=parseFloat(price.value)||0, q=parseInt(qty.value,10)||0, base=parseFloat(price.getAttribute('data-base'))||0;
+    total.textContent=fmt(p*q);
+    disc.textContent=(p>0 && base>p)? '(-'+Math.round((base-p)/base*100)+' %)' : '';
+  }
+  if(price){ price.addEventListener('input',live); qty.addEventListener('input',live); live(); }
+  var qf=document.getElementById('quoteform');
+  if(qf){ qf.addEventListener('submit',function(){ var b=qf.querySelector('button[type=submit]'); if(b){ b.disabled=true; b.textContent='Envoi…'; } }); }
+})();
+</script>
+{% endblock %}

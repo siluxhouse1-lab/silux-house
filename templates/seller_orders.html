@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Commandes reçues | SILUX HOUSE{% endblock %}
+{% block head_extra %}
+<style>
+.so-page{color:#30272B}.so-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:0 0 24px}.so-head h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)}.so-muted{color:#75666B}.so-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0}.so-stat{padding:18px;border:1px solid #E7D8D5;border-radius:16px;background:#fff}.so-stat small{display:block;color:#75666B;margin-bottom:8px}.so-stat strong{font-size:clamp(1.15rem,2vw,1.55rem);overflow-wrap:anywhere}.so-card{border:1px solid #E7D8D5;border-radius:16px;background:#fff;overflow:hidden}.so-table-wrap{overflow-x:auto}.so-table{width:100%;border-collapse:collapse}.so-table th{padding:14px 16px;text-align:left;font-size:.82rem;font-weight:600;color:#75666B;background:#F5F0E8;border-bottom:1px solid #E7D8D5;white-space:nowrap}.so-table td{padding:16px;border-bottom:1px solid #F0E8E5;vertical-align:top}.so-table tr:last-child td{border-bottom:0}.so-order{font-weight:700}.so-sub{display:block;font-size:.85rem;color:#75666B;margin-top:4px}.so-pill{display:inline-flex;border-radius:999px;padding:5px 10px;font-size:.8rem;font-weight:600;background:#E7D8D5;color:#30272B;white-space:nowrap}.so-pill.ok{background:#E7F3EB;color:#24553C}.so-pill.warn{background:#F9EEDB;color:#76521A}.so-pill.bad{background:#FBE7E7;color:#8C2E2E}.so-form{display:flex;gap:8px;align-items:center;min-width:230px}.so-form select{min-width:130px;max-width:100%;padding:9px;border:1px solid #D8C8CD;border-radius:9px;background:#fff;color:#30272B}.so-btn{border:0;border-radius:9px;padding:10px 13px;background:#D8A7B8;color:#30272B;font-weight:700;cursor:pointer}.so-btn:hover{filter:brightness(.97)}.so-protection{margin:20px 0;padding:16px 18px;border:1px solid #E7D8D5;border-radius:14px;background:#F5F0E8;display:flex;gap:12px;align-items:flex-start}.so-protection strong{display:block;margin-bottom:4px}.so-empty{text-align:center;padding:42px 20px}.so-empty h2{margin:0 0 8px}.so-open-dispute{display:inline-block;margin-top:6px;color:#8C4B64;font-size:.83rem;font-weight:700}@media(max-width:900px){.so-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.so-grid{grid-template-columns:1fr 1fr;gap:9px}.so-stat{padding:13px}.so-table-wrap{overflow:visible}.so-table,.so-table tbody,.so-table tr,.so-table td{display:block;width:100%}.so-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.so-table tr{padding:13px 15px;border-bottom:1px solid #E7D8D5}.so-table td{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border:0;align-items:flex-start}.so-table td:before{content:attr(data-label);font-size:.82rem;color:#75666B;flex:0 0 38%}.so-form{flex-direction:column;align-items:stretch;min-width:0;width:100%}.so-form select,.so-btn{width:100%}.so-table td.so-actions{display:block}.so-table td.so-actions:before{display:block;margin-bottom:8px}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="so-page">
+  <header class="so-head">
+    <div><p class="so-muted" style="margin:0 0 6px">Espace vendeur</p><h1>Commandes reçues</h1><p class="so-muted" style="margin:8px 0 0">Suivez vos ventes et mettez à jour les commandes que vous êtes autorisé à gérer.</p></div>
+    <span class="so-pill">{{ orders|length }} commande{{ 's' if orders|length != 1 else '' }}</span>
+  </header>
+
+  <section class="so-grid" aria-label="Résumé financier des commandes">
+    <article class="so-stat"><small>Fonds sous Silux Protection</small><strong>{{ '%.2f'|format(balances.escrow or 0) }} FCFA</strong></article>
+    <article class="so-stat"><small>Fonds libérés</small><strong>{{ '%.2f'|format(balances.released or 0) }} FCFA</strong></article>
+    <article class="so-stat"><small>Paiements en espèces encaissés</small><strong>{{ '%.2f'|format(balances.cash_collected or 0) }} FCFA</strong></article>
+    <article class="so-stat"><small>Remboursements à traiter</small><strong>{{ '%.2f'|format(balances.refund_due or 0) }} FCFA</strong></article>
+  </section>
+
+  <aside class="so-protection">
+    <span aria-hidden="true">🛡️</span>
+    <div><strong>Silux Protection</strong><span class="so-muted">Les montants affichés reflètent les statuts enregistrés par le système. Les fonds sous protection, les remboursements et les libérations doivent suivre les règles de paiement réellement configurées.</span></div>
+  </aside>
+
+  <section class="so-card">
+    {% if orders %}
+    <div class="so-table-wrap">
+      <table class="so-table">
+        <thead><tr><th>Commande</th><th>Acheteur</th><th>Livraison</th><th>Montant vendeur</th><th>Statut</th><th>Paiement</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for order in orders %}
+          <tr>
+            <td data-label="Commande"><span class="so-order">#{{ order.id }}</span><span class="so-sub">{{ order.created_at or 'Date non disponible' }}</span></td>
+            <td data-label="Acheteur">{{ order.customer_name or 'Acheteur' }}{% if order.customer_phone %}<span class="so-sub">{{ order.customer_phone }}</span>{% endif %}</td>
+            <td data-label="Livraison">{{ order.delivery_city or 'À confirmer' }}{% if order.delivery_address %}<span class="so-sub">{{ order.delivery_address }}</span>{% endif %}</td>
+            <td data-label="Montant vendeur"><strong>{{ '%.2f'|format(order.seller_total or 0) }} FCFA</strong></td>
+            <td data-label="Statut">
+              {% set status = (order.status or 'pending')|lower %}
+              <span class="so-pill {{ 'ok' if status in ['delivered','confirmed'] else ('bad' if status == 'cancelled' else 'warn') }}">{{ {'pending':'En attente','confirmed':'Confirmée','processing':'En préparation','shipped':'Expédiée','delivered':'Livrée','cancelled':'Annulée'}.get(status, order.status or 'Inconnu') }}</span>
+              {% if order.dispute_open %}<span class="so-open-dispute">Litige ouvert</span>{% endif %}
+            </td>
+            <td data-label="Paiement"><span class="so-pill {{ 'ok' if order.payment_status in ['paid','released'] else ('bad' if order.payment_status in ['failed','refund_due'] else 'warn') }}">{{ {'pending':'En attente','escrowed':'Sous protection','released':'Fonds libérés','paid':'Payé','failed':'Échoué','refund_due':'Remboursement à traiter','refunded':'Remboursé'}.get(order.payment_status, order.payment_status or 'Inconnu') }}</span><span class="so-sub">{{ 'Espèces' if order.payment_method == 'cash' else ('CinetPay' if order.payment_method == 'cinetpay' else (order.payment_method or 'Non précisé')) }}</span></td>
+            <td class="so-actions" data-label="Actions">
+              {% if order.status not in ['delivered','cancelled'] %}
+              <form class="so-form" method="post" action="{{ url_for('seller_order_status', order_id=order.id) }}">
+                {% if csrf_token is defined %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{% endif %}
+                <label class="sr-only" for="status-{{ order.id }}">Nouveau statut de la commande {{ order.id }}</label>
+                <select id="status-{{ order.id }}" name="status" required>
+                  <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>En préparation</option>
+                  <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Expédiée</option>
+                  <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Livrée</option>
+                  <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Annuler</option>
+                </select>
+                <button class="so-btn" type="submit">Mettre à jour</button>
+              </form>
+              {% else %}<span class="so-muted">Aucune action disponible</span>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="so-empty"><h2>Aucune commande pour le moment</h2><p class="so-muted">Les commandes contenant vos produits apparaîtront ici lorsqu’un acheteur passera commande.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

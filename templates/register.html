@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Créer un compte · SILUX HOUSE{% endblock %}
+{% block head_extra %}
+<style>
+.reg-wrap{max-width:1080px;margin:22px auto 44px;display:grid;grid-template-columns:.82fr 1.18fr;border:1px solid #E7D8D5;border-radius:24px;overflow:hidden;background:#fff;HOUSE-shadow:0 18px 50px rgba(48,39,43,.07)}
+.reg-aside{position:relative;overflow:hidden;background:#30272B;color:#F5F0E8;padding:42px 34px;display:flex;flex-direction:column;min-height:640px}
+.reg-aside:before{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(216,167,184,.45);border-radius:50%;right:-150px;top:80px;HOUSE-shadow:0 0 0 28px rgba(216,167,184,.04),0 0 0 58px rgba(216,167,184,.035)}
+.reg-mark{width:54px;height:54px;border-radius:17px;background:#D8A7B8;color:#30272B;display:grid;place-items:center;font-size:1.8rem;font-weight:800;margin-bottom:32px}
+.reg-aside h2{font-size:clamp(2rem,4vw,3rem);line-height:1.08;letter-spacing:-.04em;margin:0 0 16px;max-width:11ch}
+.reg-aside p{color:#E7D8D5;line-height:1.7;max-width:34ch;margin:0}
+.reg-points{position:relative;z-index:1;display:grid;gap:16px;margin-top:38px}
+.reg-point{display:flex;gap:12px;align-items:flex-start;color:#F5F0E8;font-size:.94rem;line-height:1.5}
+.reg-check{flex:0 0 25px;height:25px;border-radius:50%;display:grid;place-items:center;background:rgba(216,167,184,.18);color:#D8A7B8;font-weight:700}
+.reg-aside-note{margin-top:auto!important;padding-top:34px;font-size:.82rem;color:#CDBFC4!important}
+.reg-form{padding:40px clamp(22px,4vw,48px);min-width:0}
+.reg-form h1{font-size:clamp(1.8rem,3vw,2.35rem);letter-spacing:-.035em;margin:0 0 8px;color:#30272B}
+.reg-sub{color:#766970;margin:0 0 28px;line-height:1.55}
+.reg-section{margin:24px 0 14px;padding-bottom:9px;border-bottom:1px solid #E7D8D5;color:#30272B;font-weight:750;font-size:.96rem}
+.reg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.reg-field{min-width:0;margin-bottom:15px}
+.reg-field.full{grid-column:1/-1}
+.reg-field label{display:block;font-size:.88rem;font-weight:650;color:#30272B;margin:0 0 7px}
+.reg-field input,.reg-field select{HOUSE-sizing:border-HOUSE;width:100%;min-height:46px;border:1px solid #E7D8D5;border-radius:11px;padding:11px 12px;background:#FFFEFC;color:#30272B;font:inherit;outline:none;transition:border-color .18s,HOUSE-shadow .18s}
+.reg-field input:focus,.reg-field select:focus{border-color:#D8A7B8;HOUSE-shadow:0 0 0 3px rgba(216,167,184,.2)}
+.reg-hint{display:block;margin-top:6px;color:#84777E;font-size:.78rem;line-height:1.45}
+.reg-role{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.reg-role label{display:flex;gap:10px;align-items:flex-start;border:1px solid #E7D8D5;border-radius:13px;padding:13px;cursor:pointer;min-height:82px}
+.reg-role input{margin-top:4px;accent-color:#C58CA2;flex:0 0 auto}
+.reg-role strong{display:block;color:#30272B;font-size:.92rem;margin-bottom:4px}
+.reg-role small{display:block;color:#766970;line-height:1.4;font-size:.79rem;font-weight:400}
+.reg-submit{width:100%;border:0;border-radius:12px;background:#D8A7B8;color:#30272B;font:inherit;font-weight:800;padding:15px 18px;margin-top:10px;cursor:pointer;transition:transform .15s,background .15s}
+.reg-submit:hover{background:#cf96aa;transform:translateY(-1px)}
+.reg-foot{text-align:center;margin:20px 0 0;color:#766970;font-size:.9rem}
+.reg-foot a{color:#30272B;font-weight:750;text-underline-offset:3px}
+.reg-legal{font-size:.78rem;line-height:1.5;color:#84777E;margin:14px 0 0}
+@media(max-width:820px){.reg-wrap{grid-template-columns:1fr;margin:0 auto 30px;border-radius:18px}.reg-aside{min-height:0;padding:28px 24px 26px}.reg-mark{margin-bottom:20px}.reg-points{grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.reg-aside-note{padding-top:24px!important}.reg-form{padding:30px 22px}}
+@media(max-width:520px){.reg-grid{grid-template-columns:1fr;gap:0}.reg-field.full{grid-column:auto}.reg-points{grid-template-columns:1fr}.reg-role{grid-template-columns:1fr}.reg-aside h2{max-width:14ch}}
+</style>
+{% endblock %}
+{% block content %}
+<main class="reg-wrap">
+  <aside class="reg-aside">
+    <div class="reg-mark" aria-hidden="true">S</div>
+    <h2>Les bonnes connexions ouvrent le monde.</h2>
+    <p>Créez votre compte SILUX HOUSE pour découvrir des opportunités commerciales et développer vos échanges, au Niger comme à l’international.</p>
+    <div class="reg-points">
+      <div class="reg-point"><span class="reg-check">✓</span><span>Découvrez des produits et des fournisseurs.</span></div>
+      <div class="reg-point"><span class="reg-check">✓</span><span>Publiez vos besoins d’achat ou répondez aux appels d’offres.</span></div>
+      <div class="reg-point"><span class="reg-check">✓</span><span>Suivez vos activités depuis votre espace personnel.</span></div>
+      <div class="reg-point"><span class="reg-check">✓</span><span>Complétez votre profil professionnel selon votre activité.</span></div>
+    </div>
+    <p class="reg-aside-note">La création d’un compte ne garantit pas à elle seule un service de paiement, d’assurance ou de livraison particulier. Les services disponibles dépendent des fonctionnalités et conditions applicables.</p>
+  </aside>
+  <section class="reg-form">
+    <h1>Créer votre compte</h1>
+    <p class="reg-sub">Quelques informations suffisent pour commencer. Les champs marqués d’un astérisque sont obligatoires.</p>
+    <form method="post" action="{{ url_for('register') }}" id="registerform">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="reg-section">1. Vos informations</div>
+      <div class="reg-grid">
+        <div class="reg-field"><label for="name">Nom complet *</label><input id="name" name="name" type="text" maxlength="100" autocomplete="name" placeholder="Votre nom complet" required></div>
+        <div class="reg-field"><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" maxlength="30" autocomplete="tel" placeholder="Ex. +227 …" required><small class="reg-hint">Utilisez un numéro valide avec l’indicatif du pays si nécessaire.</small></div>
+        <div class="reg-field full"><label for="email">Adresse e-mail *</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" placeholder="vous@exemple.com" required></div>
+        <div class="reg-field"><label for="password">Mot de passe *</label><input id="password" name="password" type="password" minlength="10" maxlength="128" autocomplete="new-password" required><small class="reg-hint">10 caractères minimum.</small></div>
+        <div class="reg-field"><label for="password_confirm">Confirmer le mot de passe *</label><input id="password_confirm" name="password_confirm" type="password" minlength="10" maxlength="128" autocomplete="new-password" required><small class="reg-hint" id="password-hint">Saisissez à nouveau le même mot de passe.</small></div>
+      </div>
+      <div class="reg-section">2. Votre compte</div>
+      <div class="reg-role" role="group" aria-label="Type de compte">
+        <label><input type="radio" name="role" value="customer" checked><span><strong>Acheteur</strong><small>Rechercher des produits et publier des besoins d’achat.</small></span></label>
+        <label><input type="radio" name="role" value="seller"><span><strong>Vendeur / fournisseur</strong><small>Présenter votre entreprise et répondre aux demandes.</small></span></label>
+      </div>
+      <div class="reg-section">3. Votre activité (facultatif)</div>
+      <div class="reg-grid">
+        <div class="reg-field full" id="company-wrap"><label for="company_name">Nom de l’entreprise ou de la boutique <span id="company-required">(obligatoire pour les vendeurs)</span></label><input id="company_name" name="company_name" type="text" maxlength="120" autocomplete="organization" placeholder="Nom de votre entreprise"></div>
+        <div class="reg-field"><label for="company_type">Type d’activité</label><select id="company_type" name="company_type"><option value="">Sélectionner</option>{% for item in company_types %}<option value="{{ item }}">{{ item }}</option>{% endfor %}</select></div>
+        <div class="reg-field"><label for="sourcing_purpose">Objectif d’achat</label><select id="sourcing_purpose" name="sourcing_purpose"><option value="">Sélectionner</option>{% for item in sourcing_purposes %}<option value="{{ item }}">{{ item }}</option>{% endfor %}</select></div>
+        <div class="reg-field"><label for="years_active">Années d’activité</label><input id="years_active" name="years_active" type="number" min="0" max="100" value="0" inputmode="numeric"></div>
+        <div class="reg-field"><label for="city">Ville *</label><input id="city" name="city" type="text" maxlength="80" autocomplete="address-level2" value="Niamey" required></div>
+        <div class="reg-field full"><label for="address">Adresse (facultatif)</label><input id="address" name="address" type="text" maxlength="200" autocomplete="street-address" placeholder="Quartier, rue, repère…"></div>
+      </div>
+      <button class="reg-submit" id="registerbtn" type="submit">Créer mon compte</button>
+      <p class="reg-legal">En créant votre compte, veillez à fournir des informations exactes et à garder votre mot de passe confidentiel.</p>
+    </form>
+    <p class="reg-foot">Vous avez déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+  </section>
+</main>
+<script>
+(function(){
+  var form=document.getElementById('registerform');
+  var roleInputs=document.querySelectorAll('input[name="role"]');
+  var company=document.getElementById('company_name');
+  var years=document.getElementById('years_active');
+  var password=document.getElementById('password');
+  var confirm=document.getElementById('password_confirm');
+  var hint=document.getElementById('password-hint');
+  var btn=document.getElementById('registerbtn');
+  function updateRole(){
+    var seller=document.querySelector('input[name="role"]:checked').value==='seller';
+    company.required=seller;
+    document.getElementById('company-required').textContent=seller?'* obligatoire pour les vendeurs':'(facultatif pour les acheteurs)';
+    years.disabled=!seller;
+    if(!seller){years.value='0';}
+  }
+  roleInputs.forEach(function(el){el.addEventListener('change',updateRole);});
+  function checkPasswords(){
+    var match=confirm.value===''||password.value===confirm.value;
+    confirm.setCustomValidity(match?'':'Les mots de passe ne correspondent pas.');
+    hint.textContent=match?'Saisissez à nouveau le même mot de passe.':'Les mots de passe ne correspondent pas.';
+    hint.style.color=match?'':'#A33D50';
+  }
+  password.addEventListener('input',checkPasswords);
+  confirm.addEventListener('input',checkPasswords);
+  form.addEventListener('submit',function(e){
+    checkPasswords();
+    if(!form.checkValidity()){e.preventDefault();form.reportValidity();return;}
+    btn.disabled=true;btn.textContent='Création du compte…';
+  });
+  updateRole();
+})();
+</script>
+{% endblock %}

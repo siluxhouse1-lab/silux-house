@@ -1,0 +1,4 @@
+/* SAHEL BOX - base statique générée.
+   Le thème complet peut être ajouté ici après récupération des styles originaux. */
+:root { color-scheme: light; --sb-ink: #30272b; --sb-ivory: #f5f0e8; --sb-pink: #d8a7b8; }
+body { color: var(--sb-ink); }

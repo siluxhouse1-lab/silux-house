@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F5F0E8">
+  <meta name="description" content="SILUX HOUSE : marketplace B2B et B2C. Sourcing IA, appels d'offres, négociation et Silux Protection.">
+  <title>{% block title %}SILUX HOUSE{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+  {% raw %}
+  /* SILUX HOUSE : identité ivoire, rose poudré et anthracite chaud.
+     Les anciens noms de variables sont conservés pour compatibilité avec les pages existantes. */
+  :root{
+   --ink:#30272B;--indigo:#30272B;--indigo-2:#45383E;
+   --orange:#D8A7B8;--orange-d:#B77C93;--green:#2F7A5B;
+   --bg:#F5F0E8;--muted:#74666C;--line:#E7D8D5;
+   --rose:#E7D8D5;--rose-2:#D8A7B8;--ivory:#F5F0E8;
+   --gold:#D8A7B8;--gold-l:#E7D8D5;
+   --gold-grad:linear-gradient(110deg,#B77C93 0%,#D8A7B8 45%,#E7D8D5 65%,#D8A7B8 100%);
+   --serif:'Bodoni Moda','Didot','Times New Roman',serif;
+   --sans:'Jost','Helvetica Neue',Arial,sans-serif;
+  }
+  *,*::before,*::after{HOUSE-sizing:border-HOUSE}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:1rem;line-height:1.55}
+  main{flex:1}
+  a{color:var(--ink)}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .container{width:min(1280px,100% - 32px);margin-inline:auto}
+  main.container{padding-block:32px}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em}
+  .skip{position:absolute;left:-9999px;top:8px;z-index:100;background:var(--ink);color:#fff;padding:10px 16px;border-radius:2px}
+  .skip:focus{left:8px}
+
+  /* Anthracite chaud : texture discrète et profondeur */
+  .noir{background-color:#30272B;
+   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+   repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 1px,transparent 1px 6px),
+   radial-gradient(120% 140% at 80% 0%,#45383E 0%,transparent 60%)}
+  .gold-line{height:1px;background:var(--gold-grad)}
+
+  /* Boutons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--ink);cursor:pointer;font:inherit;font-weight:500;letter-spacing:.02em;
+   text-decoration:none;border-radius:2px;padding:12px 24px;background:var(--ink);color:#fff;transition:background .2s,color .2s,border-color .2s}
+  .btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .btn.secondary{background:transparent;color:var(--ink);border-color:var(--ink)}
+  .btn.secondary:hover{background:var(--ink);color:#fff}
+
+  /* Messages */
+  .flash{padding-top:20px}
+  .alert{margin:0 0 10px;padding:13px 16px;border-radius:2px;background:var(--ivory);color:var(--ink);border-left:3px solid var(--gold);font-weight:500}
+  .alert.success{background:#EAF5EF;color:#1C5A41;border-color:var(--green)}
+  .alert.error,.alert.danger{background:#FBECEA;color:#9B1C12;border-color:#C9372C}
+  .alert.warning{background:#FFF6E3;color:#7A5410;border-color:var(--gold)}
+
+  /* Barre d’annonce */
+  .topbar{color:var(--gold-l);font-size:.84rem;letter-spacing:.04em;text-align:center;padding:9px 16px}
+  .topbar span+span::before{content:"";display:inline-block;width:5px;height:5px;margin:0 16px 2px;background:var(--gold);transform:rotate(45deg)}
+
+  /* En-tête */
+  .site-header{position:sticky;top:0;z-index:50;background:#F5F0E8}
+  .head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;padding-block:14px}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+  .brand-mark{width:44px;height:44px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:1.5rem;color:#30272B;background:var(--gold-grad);border-radius:50%}
+  .brand span:last-child{display:flex;flex-direction:column;line-height:1}
+  .brand strong{font-family:var(--serif);font-weight:700;font-size:1.45rem;letter-spacing:.14em}
+  .brand small{font-size:.7rem;font-weight:500;letter-spacing:.5em;color:var(--orange);margin-top:5px}
+
+  /* Recherche enrichie : portée + champ + bouton */
+  .hsearch{display:flex;max-width:700px;width:100%;justify-self:center;border:1px solid var(--ink);border-radius:2px;background:#F5F0E8}
+  .hsearch:focus-within{HOUSE-shadow:0 0 0 2px var(--gold-l)}
+  .hsearch select{flex:none;max-width:132px;border:0;border-right:1px solid var(--line);background:var(--ivory);padding:0 10px;font:inherit;font-size:.9rem;font-weight:500;color:var(--ink);cursor:pointer}
+  .hsearch select:focus{outline:none}
+  .hsearch input{flex:1;min-width:0;border:0;background:transparent;padding:12px 16px;font:inherit;color:var(--ink)}
+  .hsearch input:focus{outline:none}
+  .hsearch button{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--ink);color:#fff;font:inherit;font-weight:500;padding:0 22px;cursor:pointer;transition:background .2s,color .2s}
+  .hsearch button:hover{background:var(--gold);color:var(--ink)}
+  .hsearch button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+  .hacts{display:flex;align-items:center;gap:2px}
+  .hacts a{position:relative;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:500;font-size:.93rem;padding:8px 10px;white-space:nowrap}
+  .hacts a:hover{color:var(--orange)}
+  .hacts svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5}
+  .cart-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--rose-2);color:var(--ink);font-size:.76rem;font-weight:600}
+  .dot-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#C9372C;color:#fff;font-size:.74rem;font-weight:600}
+
+  /* Barre d'onglets SILUXHOUSE : AI Mode / Produits / Fabricants / Mondial */
+  .modetabs{border-top:1px solid var(--line);background:#F5F0E8}
+  .modetabs .container{display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .modetabs nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .modetabs nav::-webkit-scrollbar{display:none}
+  .mtab{flex:none;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;font-size:.95rem;padding:12px 18px;border-bottom:3px solid transparent;color:var(--muted);transition:color .2s,border-color .2s}
+  .mtab:hover{color:var(--ink)}
+  .mtab.on{color:var(--ink);border-color:var(--gold)}
+  .mtab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+  .mtab .tag{font-size:.66rem;font-weight:600;letter-spacing:.06em;padding:2px 7px;border-radius:999px;background:var(--ink);color:var(--gold-l)}
+  .modetabs .rfq-cta{flex:none;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:500;font-size:.9rem;padding:7px 16px;border:1px solid var(--ink);border-radius:2px;transition:background .2s,color .2s}
+  .modetabs .rfq-cta:hover{background:var(--ink);color:#fff}
+
+  .subnav{border-top:1px solid var(--line);background:var(--ivory)}
+  .subnav .container{display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .subnav nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .subnav nav::-webkit-scrollbar{display:none}
+  .subnav a{flex:none;text-decoration:none;font-size:.93rem;font-weight:500;padding:11px 14px;border-bottom:2px solid transparent}
+  .subnav a:hover{border-color:var(--gold)}
+  .subnav a.on{border-color:var(--gold)}
+  .subnav .acct a{color:var(--muted);font-weight:400}
+  .subnav .acct a:hover{color:var(--ink)}
+  .user-pill{flex:none;padding:4px 12px;background:var(--rose);border-radius:999px;font-size:.85rem;font-weight:500;margin-inline:6px}
+  .header-edge{height:1px;background:var(--gold-grad)}
+
+  /* Bandeau Silux Protection compact */
+  .ta-strip{background:var(--ivory);border-bottom:1px solid var(--line)}
+  .ta-strip .container{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding-block:9px;font-size:.88rem;color:var(--ink);text-align:center}
+  .ta-strip svg{flex:none;width:18px;height:18px;stroke:var(--orange);fill:none;stroke-width:1.7}
+  .ta-strip b{font-weight:600}
+  .ta-strip a{color:var(--orange);font-weight:500;text-underline-offset:3px}
+
+  /* Encart Silux Protection complet (panier et paiement) */
+  .ta-panel{margin:40px auto 0;border:1px solid var(--ink);background:#F5F0E8;width:min(1280px,100% - 32px)}
+  .ta-panel::before{content:"";display:block;height:4px;background:var(--gold-grad)}
+  .ta-head{display:flex;align-items:center;gap:14px;padding:22px 28px 6px}
+  .ta-head svg{flex:none;width:34px;height:34px;stroke:var(--orange);fill:none;stroke-width:1.5}
+  .ta-head h2{margin:0;font-size:1.5rem}
+  .ta-head p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
+  .ta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:16px 28px 6px}
+  .ta-item{display:flex;gap:14px;align-items:flex-start;padding:14px 18px 14px 0}
+  .ta-item+.ta-item{padding-left:18px;border-left:1px solid var(--line)}
+  .ta-ico{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--rose);border:1px solid var(--rose-2)}
+  .ta-ico svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5}
+  .ta-item b{display:block;font-weight:600;line-height:1.25}
+  .ta-item span{display:block;margin-top:3px;color:var(--muted);font-size:.86rem;line-height:1.4}
+  .ta-pay{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 28px 22px;border-top:1px solid var(--line);margin-top:8px}
+  .ta-pay>span{color:var(--muted);font-size:.86rem;margin-right:4px}
+
+  /* Logos de paiement (dessinés en CSS, aucune image externe) */
+  .pl{display:inline-flex;align-items:center;justify-content:center;height:32px;min-width:58px;padding:0 12px;border:1px solid var(--line);border-radius:4px;background:#F5F0E8;font-weight:700;line-height:1}
+  .pl-visa{font-family:var(--sans);font-style:italic;font-size:1.15rem;letter-spacing:.02em;color:#1A1F71}
+  .pl-mc{padding:0 10px}
+  .pl-mc i{display:block;width:20px;height:20px;border-radius:50%}
+  .pl-mc i:first-child{background:#EB001B}
+  .pl-mc i:last-child{background:#F79E1B;margin-left:-8px;mix-blend-mode:multiply}
+  .pl-moov{font-size:.95rem;letter-spacing:.01em;color:#0072BC}
+  .pl-airtel{font-size:.95rem;letter-spacing:.01em;color:#E40000}
+  .site-footer .pl{border-color:rgba(255,255,255,.2)}
+
+  /* Pied de page */
+  .site-footer{color:#D8CFCB;margin-top:72px}
+  .footer-inner{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding-block:48px 32px}
+  .footer-brand strong{display:block;font-family:var(--serif);font-weight:700;font-size:1.5rem;letter-spacing:.14em;color:#fff}
+  .footer-brand p{margin:10px 0 0;max-width:34ch;color:#B7ACA8}
+  .footer-brand .pay-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .site-footer h4{margin:0 0 12px;font-family:var(--serif);font-weight:500;font-size:1.1rem;color:var(--gold-l)}
+  .footer-links{display:grid;gap:8px;align-content:start}
+  .footer-links a{color:#fff;text-decoration:none}
+  .footer-links a:hover{color:var(--gold-l)}
+  .footer-copy{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);padding-top:18px;font-size:.85rem;color:#9C918D}
+
+  @media (max-width:1000px){
+   .ta-grid{grid-template-columns:1fr 1fr;padding-inline:20px}
+   .ta-item:nth-child(3){padding-left:0;border-left:0}
+   .ta-item:nth-child(n+3){border-top:1px solid var(--line)}
+   .ta-head,.ta-pay{padding-inline:20px}
+  }
+  @media (max-width:900px){
+   .head{grid-template-columns:1fr auto;gap:12px;padding-block:12px}
+   .hsearch{grid-column:1/-1;order:3;max-width:none}
+   .hacts .lbl{display:none}
+   .modetabs .rfq-cta{display:none}
+   .subnav .container{flex-direction:column;align-items:stretch;gap:0}
+   .subnav .acct{border-top:1px solid var(--line)}
+   .footer-inner{grid-template-columns:1fr 1fr}
+   .footer-brand{grid-column:1/-1}
+  }
+  @media (max-width:560px){
+   .topbar span+span{display:none}
+   main.container{padding-block:20px}
+   .brand strong{font-size:1.2rem}
+   .hsearch select{max-width:96px;font-size:.84rem;padding:0 6px}
+   .hsearch button{padding:0 14px}
+   .hsearch button span{display:none}
+   .mtab{padding:11px 13px;font-size:.9rem}
+   .ta-grid{grid-template-columns:1fr}
+   .ta-item+.ta-item{border-left:0;padding-left:0;border-top:1px solid var(--line)}
+   .ta-item:nth-child(3){border-top:1px solid var(--line)}
+   .ta-strip .container{font-size:.82rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* Bouton flottant WhatsApp : vert officiel, bordure or très fine */
+  .wa-float{position:fixed;z-index:60;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));
+   display:flex;align-items:center;flex-direction:row-reverse;gap:12px;text-decoration:none}
+  .wa-btn{width:60px;height:60px;display:grid;place-items:center;border-radius:50%;background:#25D366;color:#fff;
+   border:1px solid var(--gold);HOUSE-shadow:0 0 0 3px rgba(255,255,255,.9),0 8px 22px rgba(21,19,20,.30);
+   transition:transform .25s cubic-bezier(.2,.7,.2,1),HOUSE-shadow .25s}
+  .wa-btn svg{width:32px;height:32px;fill:currentColor}
+  .wa-label{background:#30272B;color:var(--gold-l);font-size:.86rem;font-weight:500;letter-spacing:.03em;white-space:nowrap;
+   padding:9px 16px;border:1px solid var(--gold);border-radius:2px;opacity:0;transform:translateX(8px);pointer-events:none;
+   transition:opacity .25s,transform .25s}
+  .wa-float:hover .wa-btn,.wa-float:focus-visible .wa-btn{transform:scale(1.07);HOUSE-shadow:0 0 0 3px #fff,0 0 0 4px var(--gold-l),0 10px 26px rgba(21,19,20,.34)}
+  .wa-float:hover .wa-label,.wa-float:focus-visible .wa-label{opacity:1;transform:none}
+  .wa-float:focus-visible{outline:none}
+  .wa-float:focus-visible .wa-btn{outline:2px solid var(--ink);outline-offset:4px}
+  @media (max-width:560px){.wa-btn{width:54px;height:54px}.wa-btn svg{width:29px;height:29px}}
+  @media (hover:none){.wa-label{display:none}.wa-float:hover .wa-btn{transform:none}}
+  @media print{.wa-float,.modetabs,.ta-strip,.ta-panel{display:none}}
+  {% endraw %}
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+{# WhatsApp service client : indicatif Niger 227 + 8 chiffres, sans +, sans espace. Ex. : 22790123456 #}
+{% set whatsapp_number = "22782791007" %}
+{% set ep = request.endpoint or '' %}
+{% set ctype = request.args.get('company_type', '') %}
+{% set role = session.get('user_role') %}
+{% set inHOUSE_total = (unread_messages or 0) + (unread_notifications or 0) %}
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<div class="topbar noir"><span>Silux Protection : vos fonds protégés jusqu'à la réception</span><span>Paiement à la livraison ou en ligne</span></div>
+
+<header class="site-header">
+  <div class="container head">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="SILUX HOUSE, accueil">
+      <span class="brand-mark">S</span>
+      <span><strong>SILUX</strong><small>HOUSE</small></span>
+    </a>
+
+    <form class="hsearch" id="hsearch" action="{{ url_for('ai_sourcing') if ep == 'ai_sourcing' else url_for('home') }}" method="get" role="search">
+      <select id="hscope" aria-label="Portée de la recherche">
+        <option value="products" {{ 'selected' if ep != 'ai_sourcing' }}>Produits</option>
+        <option value="ai" {{ 'selected' if ep == 'ai_sourcing' }}>AI Mode</option>
+      </select>
+      <input id="hq" name="q" value="{{ query or '' }}" maxlength="300" autocomplete="off"
+             placeholder="{{ 'Décrivez votre besoin : « robes en soie pour boutique »' if ep == 'ai_sourcing' else 'Rechercher un parfum, une robe, un soin…' }}"
+             aria-label="Rechercher un produit">
+      <button type="submit"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Rechercher</span></button>
+    </form>
+
+    <nav class="hacts" aria-label="Compte et panier">
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('messages_hub') }}" aria-label="Messages et notifications">
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+          <span class="lbl">Messages</span>
+          {% if inHOUSE_total %}<b class="dot-badge">{{ inHOUSE_total if inHOUSE_total < 100 else '99+' }}</b>{% endif %}
+        </a>
+        <a href="{{ url_for('my_orders') }}"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-6.5 8-6.5s7 2 8 6.5"/></svg><span class="lbl">Mes commandes</span></a>
+      {% else %}
+        <a href="{{ url_for('login') }}"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-6.5 8-6.5s7 2 8 6.5"/></svg><span class="lbl">Connexion</span></a>
+      {% endif %}
+      <a href="{{ url_for('view_cart') }}" aria-label="Panier"><svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="lbl">Panier</span><b class="cart-badge">{{ cart_count }}</b></a>
+    </nav>
+  </div>
+
+  <div class="modetabs">
+    <div class="container">
+      <nav aria-label="Modes de sourcing">
+        <a class="mtab {{ 'on' if ep == 'ai_sourcing' }}" href="{{ url_for('ai_sourcing') }}" {{ 'aria-current=page' if ep == 'ai_sourcing' }}>
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></svg>AI Mode<span class="tag">IA</span>
+        </a>
+        <a class="mtab {{ 'on' if (ep in ('home', 'product_detail') and ctype != 'Fabricant') }}" href="{{ url_for('home') }}" {{ 'aria-current=page' if (ep in ('home', 'product_detail') and ctype != 'Fabricant') }}>
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v8l-8 4-8-4V8z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>Produits
+        </a>
+        <a class="mtab {{ 'on' if (ep == 'home' and ctype == 'Fabricant') }}" href="{{ url_for('home', company_type='Fabricant') }}" {{ 'aria-current=page' if (ep == 'home' and ctype == 'Fabricant') }}>
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M3 20V10l6 3V10l6 3V6h6v14H3z"/><path d="M7 20v-3M12 20v-3M17 20v-3"/></svg>Fabricants
+        </a>
+        <a class="mtab {{ 'on' if (ep in ('rfq_new', 'my_rfq', 'rfq_marketplace', 'mondial')) }}" href="{{ url_for('mondial') }}" {{ 'aria-current=page' if (ep in ('rfq_new', 'my_rfq', 'rfq_marketplace', 'mondial')) }}>
+          <svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Mondial
+        </a>
+      </nav>
+      <a class="rfq-cta" href="{{ url_for('rfq_new') }}">Demander un devis (RFQ)</a>
+    </div>
+  </div>
+
+  <div class="subnav">
+    <div class="container">
+      <nav aria-label="Catégories">
+        <a href="{{ url_for('home') }}">Tout voir</a>
+        {% for c in (nav_categories or categories or []) %}<a href="{{ url_for('home', cat_id=c.id) }}" {{ 'class=on' if request.args.get('cat_id') == c.id|string }}>{{ c.name }}</a>{% endfor %}
+      </nav>
+      <nav class="acct" aria-label="Espace personnel">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('my_rfq') }}">Mes appels d'offres</a>
+          {% if role in ('seller','admin') %}
+            <a href="{{ url_for('seller_products') }}">Produits</a>
+            <a href="{{ url_for('seller_orders') }}">Ventes</a>
+            <a href="{{ url_for('rfq_marketplace') }}">Cotations</a>
+          {% endif %}
+          {% if role == 'admin' %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}
+          <span class="user-pill">{{ session.get('user_name') }}</span>
+          <a href="{{ url_for('logout') }}">Déconnexion</a>
+        {% else %}
+          <a href="{{ url_for('register') }}">Créer un compte</a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+  <div class="header-edge" aria-hidden="true"></div>
+</header>
+
+{% block trade_banner %}
+<div class="ta-strip" role="note">
+  <div class="container">
+    <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+    <span><b>Silux Protection</b> : votre paiement reste sous séquestre jusqu'à la confirmation de réception.</span>
+  </div>
+</div>
+{% endblock %}
+
+{% with messages=get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="container flash" role="status">
+    {% for category,message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main id="contenu" class="{% block main_class %}container{% endblock %}">{% block content %}{% endblock %}</main>
+
+{% if ep in ('view_cart', 'checkout') %}
+<section class="ta-panel" aria-label="Silux Protection">
+  <div class="ta-head">
+    <svg viewHOUSE="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+    <div><h2>Silux Protection</h2><p>Achetez en confiance : la plateforme protège chaque commande payée en ligne.</p></div>
+  </div>
+  <div class="ta-grid">
+    <div class="ta-item">
+      <span class="ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+      <div><b>Paiements sécurisés</b><span>Vos fonds sont bloqués sous séquestre par SILUX HOUSE.</span></div>
+    </div>
+    <div class="ta-item">
+      <span class="ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg></span>
+      <div><b>Livraison garantie</b><span>Le vendeur n'est payé qu'après votre confirmation de réception.</span></div>
+    </div>
+    <div class="ta-item">
+      <span class="ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
+      <div><b>Protection de remboursement</b><span>En cas d'annulation, votre paiement vous est remboursé.</span></div>
+    </div>
+    <div class="ta-item">
+      <span class="ta-ico" aria-hidden="true"><svg viewHOUSE="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
+      <div><b>Assistance 24h/24, 7j/7</b><span>Notre équipe vous répond sur WhatsApp à tout moment.</span></div>
+    </div>
+  </div>
+  <div class="ta-pay">
+    <span>Moyens de paiement acceptés</span>
+    <span class="pl pl-visa" role="img" aria-label="Visa">VISA</span>
+    <span class="pl pl-mc" role="img" aria-label="Mastercard"><i></i><i></i></span>
+    <span class="pl pl-moov" role="img" aria-label="Moov Money">moov</span>
+    <span class="pl pl-airtel" role="img" aria-label="Airtel Money">airtel</span>
+  </div>
+</section>
+{% endif %}
+
+<footer class="site-footer noir">
+  <div class="gold-line" aria-hidden="true"></div>
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <strong>SILUX HOUSE</strong>
+      <p>Mode, beauté et pièces d'exception, . Achetez et vendez avec Silux Protection.</p>
+      <div class="pay-row" aria-label="Moyens de paiement">
+        <span class="pl pl-visa" role="img" aria-label="Visa">VISA</span>
+        <span class="pl pl-mc" role="img" aria-label="Mastercard"><i></i><i></i></span>
+        <span class="pl pl-moov" role="img" aria-label="Moov Money">moov</span>
+        <span class="pl pl-airtel" role="img" aria-label="Airtel Money">airtel</span>
+      </div>
+    </div>
+    <nav class="footer-links" aria-label="Boutique">
+      <h4>Boutique</h4>
+      <a href="{{ url_for('home') }}">Toutes les collections</a>
+      <a href="{{ url_for('home', company_type='Fabricant') }}">Fabricants</a>
+      <a href="{{ url_for('view_cart') }}">Mon panier</a>
+    </nav>
+    <nav class="footer-links" aria-label="Sourcing">
+      <h4>Sourcing</h4>
+      <a href="{{ url_for('ai_sourcing') }}">AI Mode</a>
+      <a href="{{ url_for('rfq_new') }}">Publier un appel d'offres</a>
+      <a href="{{ url_for('messages_hub') }}">Messagerie</a>
+    </nav>
+    <nav class="footer-links" aria-label="Mon compte">
+      <h4>Mon compte</h4>
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('my_orders') }}">Mes commandes</a>
+        <a href="{{ url_for('my_rfq') }}">Mes appels d'offres</a>
+        <a href="{{ url_for('logout') }}">Déconnexion</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Connexion</a>
+        <a href="{{ url_for('register') }}">Créer un compte</a>
+      {% endif %}
+    </nav>
+    <div class="footer-copy">© 2026 SILUX HOUSE. Tous droits réservés.</div>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Bonjour%20SILUX%20HOUSE%2C%20j%27ai%20une%20question." target="_blank" rel="noopener noreferrer" aria-label="Contacter le service client SILUX HOUSE sur WhatsApp (nouvelle fenêtre)">
+  <span class="wa-btn" aria-hidden="true">
+    <svg viewHOUSE="0 0 24 24" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+  </span>
+  <span class="wa-label">Service client</span>
+</a>
+
+<script>
+(function(){
+  var form=document.getElementById('hsearch'), scope=document.getElementById('hscope'), q=document.getElementById('hq');
+  if(!form||!scope||!q) return;
+  var urls={products:{{ url_for('home')|tojson }}, ai:{{ url_for('ai_sourcing')|tojson }}};
+  var hints={products:'Rechercher un parfum, une robe, un soin…', ai:'Décrivez votre besoin : « robes en soie pour boutique »'};
+  function sync(){ form.action=urls[scope.value]||urls.products; q.placeholder=hints[scope.value]||hints.products; }
+  scope.addEventListener('change',function(){ sync(); q.focus(); });
+  sync();
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

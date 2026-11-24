@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set status_code = code|default(500)|int %}
+{% set titles = {
+400: 'Requête invalide',
+403: 'Accès non autorisé',
+404: 'Page introuvable',
+405: 'Action non autorisée',
+413: 'Fichier trop volumineux',
+429: 'Trop de requêtes',
+500: 'Erreur interne'
+} %}
+{% set hints = {
+400: 'Rechargez la page, puis recommencez.',
+403: "Votre compte n'a pas accès à cette page.",
+404: "L'adresse est peut-être incorrecte, ou la page a été retirée.",
+405: "Cette action n'est pas disponible depuis cette page.",
+413: "Choisissez une image de 5 Mo maximum (JPG, PNG ou WebP).",
+429: 'Patientez quelques instants avant de réessayer.',
+500: "Le problème vient de notre côté. Réessayez dans un instant."
+} %}
+{% block title %}{{ titles.get(status_code, 'Erreur') }} | SILUX HOUSE{% endblock %}
+{% block content %}
+<style>
+{% raw %}
+.er{display:grid;grid-template-columns:.8fr 1.2fr;max-width:1020px;margin:16px auto 0;border:1px solid var(--line);background:#fff}
+.er-side{position:relative;overflow:hidden;color:#fff;padding:48px 36px;display:flex;flex-direction:column;justify-content:center;min-height:420px}
+.er-side::before{content:"";position:absolute;inset:16px;border:1px solid rgba(235,212,156,.4);pointer-events:none}
+.er-code{position:relative;z-index:1;font-family:var(--serif);font-weight:700;font-size:clamp(4.5rem,11vw,7.5rem);line-height:1;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.er-arch{position:absolute;right:12%;bottom:0;width:38%;aspect-ratio:3/4;border-radius:999px 999px 0 0;background:linear-gradient(180deg,var(--rose),var(--rose-2));opacity:.92}
+.er-arch::before{content:"";position:absolute;inset:-12px -12px 0;border:1.5px solid var(--gold);border-bottom:0;border-radius:999px 999px 0 0}
+.er-body{padding:48px 48px 40px;align-self:center}
+.er-body h1{font-size:clamp(1.9rem,3.4vw,2.6rem);margin:0 0 12px}
+.er-msg{margin:0 0 8px;font-size:1.05rem;max-width:46ch}
+.er-hint{margin:0 0 28px;color:var(--muted);max-width:46ch}
+.er-acts{display:flex;gap:12px;flex-wrap:wrap}
+.er-acts .btn{padding:13px 26px}
+@media (max-width:860px){
+.er{grid-template-columns:1fr;margin-top:0}
+.er-side{min-height:0;padding:30px 26px 90px}
+.er-side::before{inset:10px}
+.er-arch{width:90px;right:26px}
+.er-body{padding:32px 22px 34px}
+}
+@media (max-width:560px){.er-acts .btn{width:100%}}
+{% endraw %}
+</style>
+<section class="er" aria-labelledby="er-title">
+<aside class="er-side noir" aria-hidden="true">
+<span class="er-code">{{ status_code }}</span>
+<div class="er-arch"></div>
+</aside>
+<div class="er-body">
+<h1 id="er-title">{{ titles.get(status_code, 'Une erreur est survenue') }}</h1>
+{% if message %}<p class="er-msg">{{ message }}</p>{% endif %}
+<p class="er-hint">{{ hints.get(status_code, 'Revenez à la boutique ou réessayez dans un instant.') }}</p>
+<div class="er-acts">
+<a class="btn" href="{{ url_for('home') }}">Retour à la boutique</a>
+{% if status_code in (400, 413, 429) %}<button class="btn secondary" type="button" id="er-back">Revenir à la page précédente</button>{% endif %}
+{% if status_code == 403 and not session.get('user_id') %}<a class="btn secondary" href="{{ url_for('login') }}">Se connecter</a>{% endif %}
+</div>
+</div>
+</section>
+<script>
+(function(){
+var b=document.getElementById('er-back');
+if(b){ b.addEventListener('click',function(){ if(history.length>1){ history.back(); } else { location.href={{ url_for('home')|tojson }}; } }); }
+})();
+</script>
+{% endblock %}

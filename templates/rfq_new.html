@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Publier un appel d’offres · SILUX HOUSE{% endblock %}
+{% block head_extra %}
+<style>
+.rfq-wrap{max-width:900px;margin:0 auto}.rfq-hero{padding:28px 30px;background:#30272B;color:#F5F0E8;border-radius:18px 18px 0 0;position:relative;overflow:hidden}.rfq-hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #D8A7B8;border-radius:50%;right:-75px;top:-115px;HOUSE-shadow:0 0 0 25px #30272B,0 0 0 26px #D8A7B8,0 0 0 54px #30272B,0 0 0 55px #D8A7B8;opacity:.5}.rfq-kicker{font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:#D8A7B8;font-weight:700}.rfq-hero h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.12;margin:10px 0}.rfq-hero p{max-width:600px;color:#E7D8D5;line-height:1.6;margin:0}.rfq-card{background:#fff;border:1px solid #E7D8D5;border-top:0;border-radius:0 0 18px 18px;padding:clamp(20px,4vw,34px);HOUSE-shadow:0 16px 45px #30272b0c}.rfq-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.rfq-field{display:flex;flex-direction:column;gap:7px}.rfq-field.full{grid-column:1/-1}.rfq-field label{font-size:.9rem;font-weight:700;color:#30272B}.rfq-field label span{font-weight:400;color:#82747A}.rfq-field input,.rfq-field textarea,.rfq-field select{width:100%;HOUSE-sizing:border-HOUSE;border:1px solid #D8CFCC;border-radius:10px;padding:13px 14px;background:#FFFEFC;color:#30272B;font:inherit;outline:none;transition:border-color .15s,HOUSE-shadow .15s}.rfq-field input:focus,.rfq-field textarea:focus,.rfq-field select:focus{border-color:#B97E94;HOUSE-shadow:0 0 0 3px #D8A7B833}.rfq-field textarea{min-height:145px;resize:vertical}.rfq-help{font-size:.82rem;color:#796C71;line-height:1.45}.rfq-note{display:flex;gap:12px;padding:15px;border-radius:12px;background:#F5F0E8;color:#514349;margin:22px 0;font-size:.88rem;line-height:1.5}.rfq-note strong{display:block;color:#30272B;margin-bottom:2px}.rfq-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}.rfq-submit{appearance:none;border:0;border-radius:999px;background:#D8A7B8;color:#30272B;font:inherit;font-weight:750;padding:13px 22px;cursor:pointer;transition:transform .15s,background .15s}.rfq-submit:hover{background:#CE94A9;transform:translateY(-1px)}.rfq-cancel{color:#514349;text-decoration:none;padding:12px 8px;font-weight:600}.rfq-cancel:hover{text-decoration:underline}.rfq-steps{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.rfq-step{border:1px solid #6B5C62;border-radius:999px;padding:6px 11px;font-size:.78rem;color:#F5F0E8}.rfq-step b{color:#D8A7B8;margin-right:5px}@media(max-width:650px){.rfq-hero{padding:24px 20px}.rfq-grid{grid-template-columns:1fr;gap:16px}.rfq-field.full{grid-column:auto}.rfq-actions{align-items:stretch;flex-direction:column}.rfq-submit,.rfq-cancel{text-align:center}.rfq-hero:after{right:-150px}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="rfq-wrap">
+  <header class="rfq-hero">
+    <div class="rfq-kicker">SILUX HOUSE · Sourcing international</div>
+    <h1>Décrivez ce que vous recherchez.</h1>
+    <p>Publiez un appel d’offres pour recevoir des propositions de vendeurs. Précisez votre besoin, la quantité et le lieu de livraison afin d’obtenir des offres plus pertinentes.</p>
+    <div class="rfq-steps"><span class="rfq-step"><b>01</b> Décrivez le besoin</span><span class="rfq-step"><b>02</b> Comparez les offres</span><span class="rfq-step"><b>03</b> Échangez avec les vendeurs</span></div>
+  </header>
+  <form class="rfq-card" method="post" action="{{ url_for('rfq_new') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="rfq-grid">
+      <div class="rfq-field full">
+        <label for="title">Titre de l’appel d’offres <span>— obligatoire</span></label>
+        <input id="title" name="title" type="text" minlength="5" maxlength="150" required value="{{ request.form.get('title', '') }}" placeholder="Ex. : Fourniture de 500 ordinateurs portables">
+        <div class="rfq-help">Un titre précis aide les fournisseurs à comprendre rapidement votre demande.</div>
+      </div>
+      <div class="rfq-field full">
+        <label for="description">Description détaillée <span>— obligatoire</span></label>
+        <textarea id="description" name="description" minlength="10" maxlength="3000" required placeholder="Décrivez les caractéristiques, la qualité attendue, les spécifications, l’emballage ou toute autre exigence…">{{ request.form.get('description', '') }}</textarea>
+        <div class="rfq-help">N’incluez pas de mots de passe ni d’informations confidentielles.</div>
+      </div>
+      <div class="rfq-field">
+        <label for="quantity">Quantité demandée</label>
+        <input id="quantity" name="quantity" type="number" min="1" max="10000000" step="1" required value="{{ request.form.get('quantity', '100') }}">
+        <div class="rfq-help">Nombre total d’unités souhaitées.</div>
+      </div>
+      <div class="rfq-field">
+        <label for="moq">Quantité minimale par commande (MOQ)</label>
+        <input id="moq" name="moq" type="number" min="1" max="10000000" step="1" value="{{ request.form.get('moq', '1') }}" required>
+        <div class="rfq-help">Elle doit être inférieure ou égale à la quantité demandée.</div>
+      </div>
+      <div class="rfq-field">
+        <label for="budget_max">Budget maximal <span>— facultatif</span></label>
+        <input id="budget_max" name="budget_max" type="number" min="0" max="100000000000" step="0.01" value="{{ request.form.get('budget_max', '') }}" placeholder="Ex. : 2500000">
+        <div class="rfq-help">Budget total estimé, dans la devise attendue par la plateforme.</div>
+      </div>
+      <div class="rfq-field">
+        <label for="delivery_city">Ville ou lieu de livraison</label>
+        <input id="delivery_city" name="delivery_city" type="text" maxlength="80" value="{{ request.form.get('delivery_city', 'Niamey') }}" placeholder="Ex. : Niamey, Niger">
+        <div class="rfq-help">Indiquez la destination souhaitée, au Niger ou à l’international.</div>
+      </div>
+    </div>
+    <div class="rfq-note"><span aria-hidden="true">✦</span><div><strong>Silux Protection</strong>Les protections de paiement, de livraison et de remboursement dépendent des services effectivement disponibles et des conditions applicables à la commande. La publication de cet appel d’offres ne constitue pas, à elle seule, une garantie.</div></div>
+    <div class="rfq-actions">
+      <button class="rfq-submit" type="submit">Publier l’appel d’offres <span aria-hidden="true">→</span></button>
+      <a class="rfq-cancel" href="{{ url_for('my_rfq') }}">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

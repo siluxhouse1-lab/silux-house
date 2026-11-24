@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Appels d’offres fournisseurs · SILUX HOUSE{% endblock %}
+{% block head_extra %}
+<style>
+.rfq-market{max-width:1240px;margin:0 auto;padding:10px 0 44px;color:#30272B}
+.rfq-head{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:24px}
+.eyebrow{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;color:#9A6277}
+.rfq-head h1{font-size:clamp(2rem,4vw,3.3rem);line-height:1.08;margin:8px 0 10px}
+.rfq-head p{max-width:700px;margin:0;color:#74666C}
+.rfq-note{max-width:270px;border-left:3px solid #D8A7B8;padding:12px 15px;background:#E7D8D5;font-size:.88rem}
+.filters{display:grid;grid-template-columns:minmax(180px,1fr) minmax(160px,.55fr) auto;gap:10px;padding:16px;background:#fffaf5;border:1px solid #E7D8D5;margin-bottom:22px}
+.filters input{min-width:0;width:100%;padding:12px 13px;border:1px solid #d8c9c8;background:#fff;color:#30272B;font:inherit;border-radius:2px}
+.filters button,.quote-submit{padding:12px 19px;border:1px solid #D8A7B8;background:#D8A7B8;color:#30272B;font:inherit;font-weight:700;cursor:pointer;border-radius:2px}
+.filters button:hover,.quote-submit:hover{background:#c990a5}
+.results-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 14px;color:#74666C;font-size:.9rem}
+.rfq-list{display:grid;gap:16px}
+.rfq-card{background:#fffaf5;border:1px solid #E7D8D5;HOUSE-shadow:0 8px 24px rgba(48,39,43,.04);padding:22px}
+.card-top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.card-top h2{font-size:1.5rem;line-height:1.2;margin:0 0 8px;overflow-wrap:anywhere}
+.buyer{font-size:.9rem;color:#74666C}
+.offer-count{white-space:nowrap;background:#E7D8D5;padding:6px 10px;font-size:.8rem;font-weight:700}
+.description{white-space:pre-line;overflow-wrap:anywhere;color:#5f5358;margin:17px 0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 18px}
+.fact{background:#F5F0E8;padding:12px;min-width:0}
+.fact span{display:block;color:#74666C;font-size:.75rem;margin-bottom:4px}
+.fact strong{display:block;overflow-wrap:anywhere;font-size:.96rem}
+.purpose{font-size:.84rem;color:#74666C;margin-top:5px}
+.quote-panel{border-top:1px solid #E7D8D5;padding-top:17px}
+.quote-panel h3{font-size:1.12rem;margin:0 0 12px}
+.quote-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:.83rem;font-weight:600}
+.field input,.field textarea{width:100%;min-width:0;padding:11px 12px;border:1px solid #d8c9c8;background:white;color:#30272B;font:inherit;border-radius:2px}
+.field textarea{min-height:78px;resize:vertical}
+.quote-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.quote-help{font-size:.78rem;color:#74666C}
+.empty{padding:38px 22px;text-align:center;background:#fffaf5;border:1px dashed #cdb7bd}
+.empty h2{margin:0 0 8px;font-size:1.5rem}.empty p{margin:0;color:#74666C}
+.pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px}
+.page-link{display:inline-block;text-decoration:none;border:1px solid #30272B;padding:9px 14px;font-weight:600}.page-link:hover{background:#30272B;color:white}
+@media(max-width:760px){.filters{grid-template-columns:1fr}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.card-top{flex-direction:column}.offer-count{white-space:normal}.rfq-card{padding:16px}.quote-form{grid-template-columns:1fr}.field.full,.quote-actions{grid-column:1}.rfq-note{max-width:none}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="rfq-market">
+  <header class="rfq-head">
+    <div>
+      <div class="eyebrow">SILUX HOUSE · Espace fournisseurs</div>
+      <h1>Les besoins des acheteurs</h1>
+      <p>Parcourez les appels d’offres ouverts, repérez les demandes qui correspondent à votre activité et envoyez une cotation claire.</p>
+    </div>
+    <aside class="rfq-note"><strong>Conseil fournisseur</strong><br>Indiquez un prix unitaire réaliste, un délai précis et les détails utiles. Les conditions de transport et de protection doivent être confirmées séparément.</aside>
+  </header>
+
+  <form class="filters" method="get" action="{{ url_for('rfq_marketplace') }}">
+    <input type="search" name="q" value="{{ q }}" maxlength="80" placeholder="Rechercher un produit ou un besoin" aria-label="Rechercher un appel d’offres">
+    <input type="text" name="city" value="{{ city }}" maxlength="80" placeholder="Ville de livraison" aria-label="Ville de livraison">
+    <button type="submit">Rechercher</button>
+  </form>
+
+  <div class="results-top"><span>Appels d’offres ouverts correspondant à votre recherche</span>{% if q or city %}<a href="{{ url_for('rfq_marketplace') }}">Effacer les filtres</a>{% endif %}</div>
+
+  {% if rfqs %}
+  <div class="rfq-list">
+    {% for rfq in rfqs %}
+    <article class="rfq-card">
+      <div class="card-top">
+        <div>
+          <h2>{{ rfq.title }}</h2>
+          <div class="buyer">Acheteur : <strong>{{ rfq.buyer_company or rfq.buyer_name }}</strong>{% if rfq.buyer_company_type %} · {{ rfq.buyer_company_type }}{% endif %}</div>
+          {% if rfq.buyer_purpose %}<div class="purpose">Activité / besoin : {{ rfq.buyer_purpose }}</div>{% endif %}
+        </div>
+        <div class="offer-count">{{ rfq.offers_count }} cotation{% if rfq.offers_count != 1 %}s{% endif %} reçue{% if rfq.offers_count != 1 %}s{% endif %}</div>
+      </div>
+
+      {% if rfq.description %}<p class="description">{{ rfq.description }}</p>{% endif %}
+      <div class="facts">
+        <div class="fact"><span>Quantité demandée</span><strong>{{ '{:,}'.format(rfq.quantity or 0).replace(',', ' ') }}</strong></div>
+        <div class="fact"><span>Quantité minimale (MOQ)</span><strong>{{ '{:,}'.format(rfq.moq or 1).replace(',', ' ') }}</strong></div>
+        <div class="fact"><span>Livraison souhaitée</span><strong>{{ rfq.delivery_city or 'À préciser' }}</strong></div>
+        <div class="fact"><span>Budget maximum indicatif</span><strong>{% if rfq.budget_max is not none %}{{ '{:,.0f}'.format(rfq.budget_max).replace(',', ' ') }} FCFA{% else %}Non précisé{% endif %}</strong></div>
+      </div>
+
+      <div class="quote-panel">
+        <h3>{% if rfq.my_quote_id %}Modifier votre cotation{% else %}Proposer votre prix{% endif %}</h3>
+        <form class="quote-form" method="post" action="{{ url_for('rfq_quote', rfq_id=rfq.id) }}">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <div class="field">
+            <label for="unit-price-{{ rfq.id }}">Prix unitaire (FCFA) *</label>
+            <input id="unit-price-{{ rfq.id }}" type="number" name="unit_price" min="0.01" max="10000000000" step="0.01" value="{{ rfq.my_unit_price if rfq.my_unit_price is not none else '' }}" required>
+          </div>
+          <div class="field">
+            <label for="lead-time-{{ rfq.id }}">Délai de livraison / disponibilité (jours) *</label>
+            <input id="lead-time-{{ rfq.id }}" type="number" name="lead_time_days" min="0" max="365" step="1" value="{{ rfq.my_lead_time if rfq.my_lead_time is not none else 0 }}" required>
+          </div>
+          <div class="field full">
+            <label for="comment-{{ rfq.id }}">Commentaire (facultatif)</label>
+            <textarea id="comment-{{ rfq.id }}" name="comment" maxlength="1000" placeholder="Précisez la marque, la qualité, le conditionnement ou les conditions proposées…">{{ rfq.my_comment or '' }}</textarea>
+          </div>
+          <div class="quote-actions">
+            <span class="quote-help">Le prix et le délai seront transmis à l’acheteur. Vérifiez votre proposition avant l’envoi.</span>
+            <button class="quote-submit" type="submit">{% if rfq.my_quote_id %}Mettre à jour la cotation{% else %}Envoyer ma cotation{% endif %}</button>
+          </div>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <nav class="pagination" aria-label="Pagination des appels d’offres">
+    <div>{% if page > 1 %}<a class="page-link" href="{{ url_for('rfq_marketplace', q=q, city=city, page=page-1) }}">← Précédent</a>{% endif %}</div>
+    <span>Page {{ page }}</span>
+    <div>{% if has_next %}<a class="page-link" href="{{ url_for('rfq_marketplace', q=q, city=city, page=page+1) }}">Suivant →</a>{% endif %}</div>
+  </nav>
+  {% else %}
+  <div class="empty"><h2>Aucun appel d’offres trouvé</h2><p>Essayez un autre mot-clé ou une autre ville. De nouvelles demandes peuvent être publiées à tout moment.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

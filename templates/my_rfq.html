@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Mes appels d’offres · SILUX HOUSE{% endblock %}
+
+{% block head_extra %}
+<style>
+{% raw %}
+.mr-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.mr-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
+.mr-eyebrow::before{content:"";width:22px;height:1px;background:var(--gold)}
+.mr-head h1{margin:8px 0 4px;font-size:2.1rem;line-height:1.1}
+.mr-head p{margin:0;color:var(--muted);max-width:62ch}
+.mr-stats{display:flex;border:1px solid var(--ink);background:#fff}
+.mr-stats div{padding:10px 20px;text-align:center}
+.mr-stats div+div{border-left:1px solid var(--line)}
+.mr-stats b{display:block;font-family:var(--serif);font-size:1.5rem;line-height:1.1}
+.mr-stats span{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.mr-list{display:grid;gap:26px}
+.mcard{border:1px solid var(--ink);background:#fff}
+.mcard::before{content:"";display:block;height:3px;background:var(--gold-grad)}
+.mcard.closed{border-color:var(--line)}
+.mcard.closed::before{background:var(--line)}
+.mtop{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;padding:20px 24px 14px}
+.mtitle{margin:0 0 4px;font-size:1.4rem;line-height:1.25}
+.mref{color:var(--muted);font-size:.86rem}
+.mdesc{margin:10px 0 0;color:#3A3234;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.mdesc.clamp{display:-webkit-HOUSE;-webkit-line-clamp:3;-webkit-HOUSE-orient:vertical;overflow:hidden}
+.mmore{margin-top:4px;border:0;background:none;padding:0;color:var(--orange);font:inherit;font-size:.88rem;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.mside{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.status{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;font-size:.78rem;font-weight:600;background:#CDEBDC;color:#1C5A41;white-space:nowrap}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status.closed{background:#EDE6E3;color:#6E6366}
+.mside form{margin:0}
+.mside .btn{padding:8px 16px;font-size:.86rem}
+
+.mfacts{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--ivory)}
+.mfacts div{padding:11px 16px}
+.mfacts div+div{border-left:1px solid var(--line)}
+.mfacts span{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.mfacts b{display:block;margin-top:2px;font-weight:600}
+
+.cmp{padding:18px 24px 24px}
+.cmp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cmp-bar h3{margin:0;font-size:1.2rem}
+.sorts{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.84rem;color:var(--muted)}
+.sortb{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:inherit;font-size:.84rem;font-weight:500;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.sortb:hover{border-color:var(--gold);color:var(--ink)}
+.sortb.on{background:var(--ink);border-color:var(--ink);color:var(--gold-l)}
+
+.offers{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.offer{display:grid;grid-template-columns:46px minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 16px;border:1px solid var(--line);background:#fff;transition:border-color .2s}
+.offer:hover{border-color:var(--ink)}
+.offer.best{border-color:var(--gold);background:linear-gradient(90deg,#FFFCF5,#fff)}
+.rank{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-family:var(--serif);font-weight:700;font-size:1.1rem;background:var(--ivory);border:1px solid var(--line);color:var(--ink)}
+.offer.best .rank{background:var(--gold-grad);border-color:var(--gold);color:#151314}
+.who strong{display:block;font-weight:600;line-height:1.3}
+.who .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:.74rem;padding:2px 9px;border-radius:999px;border:1px solid var(--line);background:var(--ivory);color:var(--ink);white-space:nowrap}
+.tag.best{background:var(--ink);border-color:var(--ink);color:var(--gold-l);font-weight:600}
+.tag.good{background:#EAF5EF;border-color:#BFE0CF;color:#1C5A41}
+.tag.bad{background:#FBECEA;border-color:#F0C4BF;color:#9B1C12}
+.cm{margin:6px 0 0;color:var(--muted);font-size:.86rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.price .u{font-family:var(--serif);font-size:1.45rem;font-weight:700;line-height:1.1}
+.price .u small{font-family:var(--sans);font-size:.76rem;font-weight:500;color:var(--muted)}
+.price .t{display:block;margin-top:2px;color:var(--muted);font-size:.85rem}
+.price .gap{display:inline-block;margin-top:4px;font-size:.76rem;font-weight:600;color:#8A2E22}
+.lead b{display:block;font-weight:600}
+.lead span{color:var(--muted);font-size:.84rem}
+.lead .metrics{display:block;margin-top:4px;color:var(--muted);font-size:.8rem}
+.contact{display:flex;flex-direction:column;gap:6px;min-width:128px}
+.contact a{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-size:.86rem;font-weight:500;padding:8px 14px;border-radius:2px;border:1px solid var(--ink);transition:background .2s,color .2s}
+.contact a.wa{background:#25D366;border-color:#25D366;color:#fff}
+.contact a.wa:hover{background:#1DA851;border-color:#1DA851}
+.contact a.tel{background:#fff;color:var(--ink)}
+.contact a.tel:hover{background:var(--ink);color:#fff}
+.contact a[hidden]{display:none}
+
+.noffer{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);background:var(--ivory)}
+.noffer b{display:block;color:var(--ink);font-family:var(--serif);font-size:1.15rem;font-weight:500;margin-bottom:2px}
+
+.mr-empty{text-align:center;padding:64px 20px;border:1px dashed var(--line);background:var(--ivory);color:var(--muted)}
+.mr-empty svg{width:54px;height:54px;stroke:var(--gold);fill:none;stroke-width:1.2;margin-bottom:10px}
+.mr-empty h2{margin:0 0 6px;font-size:1.35rem;color:var(--ink)}
+.mr-empty p{margin:0 auto 18px;max-width:46ch}
+
+@media (max-width:1000px){
+ .offer{grid-template-columns:46px minmax(0,1fr) minmax(0,1fr);}
+ .offer .lead{grid-column:2/-1}
+ .offer .contact{grid-column:1/-1;flex-direction:row}
+ .offer .contact a{flex:1}
+ .mfacts{grid-template-columns:repeat(2,1fr)}
+ .mfacts div:nth-child(odd){border-left:0}
+ .mfacts div:nth-child(n+3){border-top:1px solid var(--line)}
+}
+@media (max-width:560px){
+ .mr-head h1{font-size:1.65rem}
+ .mr-stats{width:100%}
+ .mr-stats div{flex:1;padding:10px}
+ .mtop{grid-template-columns:1fr;padding:16px 16px 12px;gap:10px}
+ .mside{flex-direction:row;align-items:center;justify-content:space-between}
+ .cmp{padding:16px}
+ .offer{grid-template-columns:40px minmax(0,1fr);gap:12px}
+ .offer .price,.offer .lead{grid-column:1/-1}
+ .rank{width:36px;height:36px}
+}
+{% endraw %}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set open_count = rfqs|selectattr('status', 'equalto', 'open')|list|length %}
+{% set offers_total = namespace(n=0) %}
+{% for r in rfqs %}{% set offers_total.n = offers_total.n + (r.offers|length) %}{% endfor %}
+
+<div class="mr-head">
+  <div>
+    <span class="mr-eyebrow">SILUX HOUSE · SOURCING MONDIAL</span>
+    <h1>Mes appels d'offres</h1>
+    <p>Suivez vos demandes d’achat, comparez les cotations reçues et échangez avec les fournisseurs en toute simplicité.</p>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <div class="mr-stats" aria-label="Résumé">
+      <div><b>{{ rfqs|length }}</b><span>Appels</span></div>
+      <div><b>{{ open_count }}</b><span>Ouverts</span></div>
+      <div><b>{{ offers_total.n }}</b><span>Offres</span></div>
+    </div>
+    <a class="btn" href="{{ url_for('rfq_new') }}">Nouvel appel d'offres</a>
+  </div>
+</div>
+
+{% if rfqs %}
+<div class="mr-list">
+  {% for r in rfqs %}
+  <article class="mcard {{ 'closed' if r.status == 'closed' }}" aria-labelledby="mr-{{ r.id }}">
+    <div class="mtop">
+      <div>
+        <h2 class="mtitle" id="mr-{{ r.id }}">{{ r.title }}</h2>
+        <div class="mref">Appel d'offres n° {{ r.id }} · publié le {{ r.created_at[8:10] }}/{{ r.created_at[5:7] }}/{{ r.created_at[:4] }}</div>
+        <p class="mdesc {{ 'clamp' if r.description|length > 220 }}" id="md-{{ r.id }}">{{ r.description }}</p>
+        {% if r.description|length > 220 %}<button type="button" class="mmore" data-target="md-{{ r.id }}">Lire la suite</button>{% endif %}
+      </div>
+      <div class="mside">
+        <span class="status {{ 'closed' if r.status == 'closed' }}">{{ 'Ouvert' if r.status == 'open' else 'Clôturé' }}</span>
+        {% if r.status == 'open' %}
+        <form method="post" action="{{ url_for('rfq_close', rfq_id=r.id) }}" data-confirm="Clôturer cet appel d'offres ? Les vendeurs ne pourront plus coter.">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button class="btn secondary" type="submit">Clôturer</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mfacts">
+      <div><span>Quantité</span><b>{{ r.quantity }} unité{{ 's' if r.quantity != 1 }}</b></div>
+      <div><span>MOQ ciblé</span><b>{{ r.moq }} unité{{ 's' if r.moq != 1 }}</b></div>
+      <div><span>Budget maximum</span><b>{% if r.budget_max %}{{ r.budget_max|fcfa }} FCFA{% else %}Non précisé{% endif %}</b></div>
+      <div><span>Meilleur prix</span><b>{% if r.best_price %}{{ r.best_price|fcfa }} FCFA / unité{% else %}–{% endif %}</b></div>
+      <div><span>Livraison</span><b>{{ r.delivery_city }}</b></div>
+    </div>
+
+    <div class="cmp">
+      <div class="cmp-bar">
+        <h3>{{ r.offers|length }} offre{{ 's' if r.offers|length != 1 }} reçue{{ 's' if r.offers|length != 1 }}</h3>
+        {% if r.offers|length > 1 %}
+        <div class="sorts" role="group" aria-label="Trier les offres">Trier par
+          <button type="button" class="sortb on" data-sort="price">Prix croissant</button>
+          <button type="button" class="sortb" data-sort="lead">Délai</button>
+          <button type="button" class="sortb" data-sort="loyalty">Fidélité</button>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if r.offers %}
+      <ol class="offers" data-list>
+        {% for o in r.offers %}
+        <li class="offer {{ 'best' if o.rank == 1 }}" data-price="{{ o.unit_price }}" data-lead="{{ o.lead_time_days }}" data-loyalty="{{ o.reorder_rate }}" data-rank="{{ o.rank }}">
+          <span class="rank" aria-label="Rang {{ o.rank }}">{{ o.rank }}</span>
+          <div class="who">
+            <strong>{{ o.seller_company }}</strong>
+            <div class="tags">
+              {% if o.rank == 1 %}<span class="tag best">Prix unitaire le plus bas</span>{% endif %}
+              {% if o.company_type %}<span class="tag">{{ o.company_type }}</span>{% endif %}
+              {% if r.budget_max %}{% if o.within_budget %}<span class="tag good">Dans le budget</span>{% else %}<span class="tag bad">Hors budget</span>{% endif %}{% endif %}
+            </div>
+            {% if o.comment %}<p class="cm">{{ o.comment }}</p>{% endif %}
+          </div>
+          <div class="price">
+            <span class="u">{{ o.unit_price|fcfa }} <small>FCFA / unité</small></span>
+            <span class="t">Total : {{ o.total_price|fcfa }} FCFA</span>
+            {% if o.rank > 1 and r.best_price %}<span class="gap">+{{ ((o.unit_price - r.best_price) / r.best_price * 100)|round|int }} % vs meilleur prix</span>{% endif %}
+          </div>
+          <div class="lead">
+            <b>{% if o.lead_time_days == 0 %}Immédiat{% else %}{{ o.lead_time_days }} jour{{ 's' if o.lead_time_days > 1 }}{% endif %}</b>
+            <span>Délai de livraison</span>
+            <span class="metrics">{% if o.years_active %}{{ o.years_active }} an{{ 's' if o.years_active > 1 }} d'ancienneté · {% endif %}Réachat {{ o.reorder_rate|round|int }} %</span>
+          </div>
+          <div class="contact">
+            <a class="wa" data-wa="{{ o.seller_phone }}" data-msg="Bonjour, je vous contacte au sujet de mon appel d'offres n° {{ r.id }} « {{ r.title }} » sur SILUX HOUSE." href="#" target="_blank" rel="noopener noreferrer" hidden>WhatsApp</a>
+            <a class="tel" data-tel="{{ o.seller_phone }}" href="#" hidden>Appeler</a>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <div class="noffer">
+        <b>{% if r.status == 'open' %}En attente de cotations{% else %}Aucune offre reçue{% endif %}</b>
+        {% if r.status == 'open' %}Les vendeurs ont été informés de votre demande. Revenez consulter les nouvelles cotations.{% else %}Cet appel d'offres a été clôturé sans cotation.{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="mr-empty">
+  <svg viewHOUSE="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+  <h2>Aucun appel d'offres</h2>
+  <p>Publiez votre besoin : les vendeurs vous enverront leurs prix, que vous pourrez comparer ici.</p>
+  <a class="btn" href="{{ url_for('rfq_new') }}">Publier un appel d'offres</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  document.querySelectorAll('.mmore').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var el=document.getElementById(btn.getAttribute('data-target')); if(!el) return;
+      var open=el.classList.toggle('clamp')===false;
+      btn.textContent=open?'Réduire':'Lire la suite';
+    });
+  });
+
+  document.querySelectorAll('form[data-confirm]').forEach(function(f){
+    f.addEventListener('submit',function(e){ if(!window.confirm(f.getAttribute('data-confirm'))){ e.preventDefault(); } });
+  });
+
+  /* Numéros : indicatif Niger (227) ajouté aux numéros locaux à 8 chiffres */
+  function intl(raw){
+    var d=(raw||'').replace(/\D+/g,'');
+    if(d.indexOf('00')===0) d=d.slice(2);
+    if(d.length===8) d='227'+d;
+    return d.length>=10 ? d : '';
+  }
+  document.querySelectorAll('a[data-wa]').forEach(function(a){
+    var n=intl(a.getAttribute('data-wa')); if(!n) return;
+    a.href='https://wa.me/'+n+'?text='+encodeURIComponent(a.getAttribute('data-msg')||'');
+    a.hidden=false;
+  });
+  document.querySelectorAll('a[data-tel]').forEach(function(a){
+    var n=intl(a.getAttribute('data-tel')); if(!n) return;
+    a.href='tel:+'+n; a.hidden=false;
+  });
+
+  /* Tri client : prix croissant (défaut), délai, fidélité */
+  document.querySelectorAll('.cmp').forEach(function(HOUSE){
+    var list=HOUSE.querySelector('[data-list]'); if(!list) return;
+    var btns=HOUSE.querySelectorAll('.sortb'); if(!btns.length) return;
+    btns.forEach(function(b){
+      b.addEventListener('click',function(){
+        var key=b.getAttribute('data-sort');
+        btns.forEach(function(x){ x.classList.toggle('on',x===b); });
+        var items=Array.prototype.slice.call(list.children);
+        items.sort(function(a,c){
+          var pa=parseFloat(a.getAttribute('data-price')), pc=parseFloat(c.getAttribute('data-price'));
+          if(key==='lead'){ var d=parseFloat(a.getAttribute('data-lead'))-parseFloat(c.getAttribute('data-lead')); return d||pa-pc; }
+          if(key==='loyalty'){ var l=parseFloat(c.getAttribute('data-loyalty'))-parseFloat(a.getAttribute('data-loyalty')); return l||pa-pc; }
+          return pa-pc;
+        });
+        items.forEach(function(li){ list.appendChild(li); });
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

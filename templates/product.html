@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} | SILUX HOUSE{% endblock %}
+{% block content %}
+<style>
+:root{--sb-ivory:#F5F0E8;--sb-pink:#D8A7B8;--sb-ink:#30272B;--sb-pale:#E7D8D5;--sb-muted:#74666B;--sb-line:#E4D9D5}
+.sb-product{color:var(--sb-ink);padding:18px 0 42px}.sb-product a{color:inherit}.sb-crumbs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--sb-muted);font-size:.88rem;margin:4px 0 22px}.sb-crumbs a{text-decoration:none}.sb-crumbs a:hover{text-decoration:underline}.sb-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(24px,4vw,52px);align-items:start}.sb-gallery{border:1px solid var(--sb-line);border-radius:18px;overflow:hidden;background:var(--sb-pale)}.sb-main-image{min-height:340px;aspect-ratio:1/1;display:grid;place-items:center;background:linear-gradient(145deg,#E7D8D5,#F5F0E8)}.sb-main-image img{display:block;width:100%;height:100%;max-height:620px;object-fit:contain}.sb-placeholder{font-family:Georgia,serif;font-size:6rem;color:#A96F85}.sb-gallery-note{padding:13px 16px;background:#fff8;border-top:1px solid var(--sb-line);color:var(--sb-muted);font-size:.82rem}.sb-kicker{color:#946176;text-transform:uppercase;letter-spacing:.12em;font-size:.76rem;font-weight:800}.sb-title{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.12;letter-spacing:-.03em;margin:10px 0 12px}.sb-meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--sb-muted);font-size:.88rem}.sb-pill{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;background:var(--sb-pale);color:var(--sb-ink);font-size:.78rem;font-weight:700}.sb-price-HOUSE{margin:22px 0;padding:20px;border:1px solid var(--sb-line);border-radius:14px;background:#fff9}.sb-price{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;letter-spacing:-.03em}.sb-price small{font-size:.9rem;font-weight:600;color:var(--sb-muted);letter-spacing:0}.sb-moq{margin-top:6px;color:var(--sb-muted);font-size:.9rem}.sb-stock{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:.88rem;font-weight:700}.sb-stock:before{content:"";width:8px;height:8px;border-radius:50%;background:#4C8966}.sb-stock.out:before{background:#B44747}.sb-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.sb-btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:48px;padding:12px 16px;border:1px solid var(--sb-pink);border-radius:9px;background:var(--sb-pink);color:var(--sb-ink)!important;text-decoration:none;font-weight:800;cursor:pointer}.sb-btn:hover{background:#E7C4D0}.sb-btn.secondary{background:transparent;border-color:var(--sb-line)}.sb-btn:disabled{opacity:.55;cursor:not-allowed}.sb-quantity{display:flex;flex-direction:column;gap:7px;margin-top:18px}.sb-quantity label{font-weight:700;font-size:.9rem}.sb-quantity input{width:100%;max-width:180px;min-height:44px;border:1px solid #CDBFC3;border-radius:8px;padding:10px 12px;background:#fff;color:var(--sb-ink);font:inherit}.sb-panel{margin-top:18px;padding:18px;border:1px solid var(--sb-line);border-radius:14px;background:#fff9}.sb-panel h2{font-size:1.05rem;margin:0 0 12px}.sb-seller{display:flex;align-items:flex-start;gap:13px}.sb-seller-mark{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--sb-pale);font-size:1.2rem;font-weight:800}.sb-seller-name{font-weight:800}.sb-seller-type{color:var(--sb-muted);font-size:.84rem;margin-top:3px}.sb-seller-stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;color:var(--sb-muted);font-size:.82rem}.sb-protection{display:flex;gap:13px;align-items:flex-start;background:var(--sb-pale);border-radius:14px;padding:18px;margin-top:18px}.sb-shield{width:40px;height:40px;flex:none;border-radius:12px;background:#F5F0E8;display:grid;place-items:center;font-size:1.25rem}.sb-protection strong{display:block}.sb-protection p{margin:5px 0 0;color:#66565D;font-size:.88rem;line-height:1.55}.sb-details{margin-top:34px}.sb-details h2{font-size:1.45rem;margin:0 0 14px}.sb-description{white-space:pre-line;line-height:1.75;color:#51464A}.sb-detail-table{width:100%;border-collapse:collapse;margin-top:18px}.sb-detail-table th,.sb-detail-table td{padding:12px;border-bottom:1px solid var(--sb-line);text-align:left;vertical-align:top}.sb-detail-table th{width:38%;font-weight:700;color:var(--sb-muted)}.sb-notice{font-size:.82rem;line-height:1.5;color:var(--sb-muted);margin-top:12px}
+@media(max-width:760px){.sb-layout{grid-template-columns:1fr}.sb-main-image{min-height:250px}.sb-actions{grid-template-columns:1fr}.sb-title{font-size:2rem}.sb-detail-table th{width:42%}}
+</style>
+<div class="sb-product">
+  <nav class="sb-crumbs" aria-label="Fil d’Ariane">
+    <a href="{{ url_for('home') }}">Accueil</a><span aria-hidden="true">/</span>
+    <a href="{{ url_for('home') }}#produits">Produits</a><span aria-hidden="true">/</span>
+    <span aria-current="page">{{ product.name }}</span>
+  </nav>
+
+  <div class="sb-layout">
+    <section>
+      <div class="sb-gallery">
+        <div class="sb-main-image">
+          {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="eager">
+          {% else %}
+            <div class="sb-placeholder" aria-label="Image non disponible">S</div>
+          {% endif %}
+        </div>
+        <div class="sb-gallery-note">Image et informations fournies par le vendeur, sous réserve de vérification.</div>
+      </div>
+      <section class="sb-details">
+        <h2>Description du produit</h2>
+        {% if product.description %}
+          <div class="sb-description">{{ product.description }}</div>
+        {% else %}
+          <p class="sb-description">Le vendeur n’a pas encore ajouté de description détaillée pour ce produit.</p>
+        {% endif %}
+        <table class="sb-detail-table" aria-label="Caractéristiques du produit">
+          <tbody>
+            <tr><th>Catégorie</th><td>{{ product.category_name or 'Non renseignée' }}</td></tr>
+            <tr><th>Quantité minimale</th><td>{{ product.moq or 1 }} unité(s)</td></tr>
+            <tr><th>Disponibilité déclarée</th><td>{% if product.stock > 0 %}{{ product.stock }} unité(s) en stock{% else %}Rupture de stock{% endif %}</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+
+    <section>
+      <div class="sb-kicker">Offre commerciale</div>
+      <h1 class="sb-title">{{ product.name }}</h1>
+      <div class="sb-meta">
+        {% if product.category_name %}<span class="sb-pill">{{ product.category_name }}</span>{% endif %}
+        {% if product.company_type %}<span>{{ product.company_type }}</span>{% endif %}
+      </div>
+
+      <div class="sb-price-HOUSE">
+        <div class="sb-price">{{ "{:,.0f}".format(product.price).replace(",", " ") }} <small>FCFA / unité</small></div>
+        <div class="sb-moq">Quantité minimale de commande : <strong>{{ product.moq or 1 }}</strong></div>
+        {% if product.stock > 0 %}<div class="sb-stock">Disponible selon le stock déclaré</div>{% else %}<div class="sb-stock out">Actuellement indisponible</div>{% endif %}
+        {% if product.stock > 0 and product.stock >= (product.moq or 1) %}
+          <form method="post" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+            <div class="sb-quantity"><label for="quantity">Quantité souhaitée</label><input id="quantity" name="quantity" type="number" min="{{ product.moq or 1 }}" max="{{ product.stock }}" step="1" value="{{ product.moq or 1 }}" required></div>
+            <div class="sb-actions">
+              <button class="sb-btn" type="submit">Ajouter au panier</button>
+              <a class="sb-btn secondary" href="{{ url_for('view_cart') }}">Voir le panier</a>
+            </div>
+          </form>
+        {% else %}
+          <div class="sb-actions"><button class="sb-btn" type="button" disabled>Indisponible</button><a class="sb-btn secondary" href="{{ url_for('home') }}">Voir d’autres produits</a></div>
+        {% endif %}
+        <p class="sb-notice">Le prix affiché est celui enregistré pour cette offre. Les frais de transport, droits de douane et délais éventuels doivent être confirmés avant la commande.</p>
+      </div>
+
+      <div class="sb-panel">
+        <h2>Informations sur le fournisseur</h2>
+        <div class="sb-seller">
+          <div class="sb-seller-mark" aria-hidden="true">{{ (product.company_name or product.seller_name or 'S')[0]|upper }}</div>
+          <div>
+            <div class="sb-seller-name">{{ product.company_name or product.seller_name or 'Fournisseur' }}</div>
+            <div class="sb-seller-type">{{ product.company_type or 'Vendeur SILUX HOUSE' }}</div>
+          </div>
+        </div>
+        <div class="sb-seller-stats">
+          {% if product.years_active %}<span>{{ product.years_active }} an{{ 's' if product.years_active > 1 }} d’activité déclarée</span>{% endif %}
+          {% if product.reorder_rate %}<span>Taux de réachat : {{ product.reorder_rate|round|int }}%</span>{% endif %}
+        </div>
+        <p class="sb-notice">Les informations présentées proviennent du profil fournisseur. Leur affichage ne constitue pas, à lui seul, une certification indépendante.</p>
+      </div>
+
+      <div class="sb-protection">
+        <div class="sb-shield" aria-hidden="true">◇</div>
+        <div><strong>Silux Protection</strong><p>Consultez les conditions applicables à votre transaction avant de payer. Les garanties, l’éligibilité et la procédure de réclamation doivent être confirmées dans les conditions officielles de SILUX HOUSE.</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
